@@ -24,7 +24,8 @@ int spawn_point[2] = {screen_size[0] / 2 - player_size[0] / 2, screen_size[1] / 
 int player_pos[2] = {spawn_point[0], spawn_point[1]};
 
 int player_speed[2] = {0, 0};
-int player_max_speed[2] = {15, 25};
+int player_max_speed[2] = {10, 25};
+int player_acceleration = 2;
 
 int gravity = 2;
 
@@ -93,6 +94,52 @@ int update()
       player_speed[1] = 0;
     }
 
+    if(key_state[SDL_SCANCODE_A] == 1)
+    {
+      if(player_pos[0] > 0)
+      {
+        if(player_speed[0] > -player_max_speed[0])
+        {
+          player_speed[0] -= player_acceleration;
+        }
+      }
+      else if(player_pos[0] <= 0)
+      {
+        player_speed[0] = 0;
+        player_pos[0] = 0;
+      }
+    }
+    else if(key_state[SDL_SCANCODE_A] == 0)
+    {
+      if(player_speed[0] < 0)
+      {
+        player_speed[0] += player_acceleration;
+      }
+    }
+
+    if(key_state[SDL_SCANCODE_D] == 1)
+    {
+      if(player_pos[0] + player_size[0] / 2 < screen_size[0] - player_size[0] / 2 - 1)
+      {
+        if(player_speed[0] < player_max_speed[0])
+        {
+          player_speed[0] += player_acceleration;
+        }
+      }
+      else if(player_pos[0] + player_size[0] >= screen_size[0] - player_size[0] / 2 - 1)
+      {
+        player_speed[0] = 0;
+        player_pos[0] = screen_size[0] - player_size[0] - 1;
+      }
+    }
+    else if(key_state[SDL_SCANCODE_D] == 0)
+    {
+      if(player_speed[0] > 0)
+      {
+        player_speed[0] -= player_acceleration;
+      }
+    }
+
     if(draw_screen() == -1) return -1;
   }
 
@@ -129,22 +176,6 @@ int main()
         if(player_pos[1] + player_size[1] / 2 >= screen_size[1] - player_size[1] / 2 - 1) player_speed[1] = -player_max_speed[1];
       }
       else if(key_state[SDL_SCANCODE_SPACE] == 0) space_pressed = false;
-
-      if(key_state[SDL_SCANCODE_A] == 1)
-      {
-        if(player_pos[0] > 0)
-        {
-          player_pos[0]--;
-        }
-      }
-
-      if(key_state[SDL_SCANCODE_D] == 1)
-      {
-        if(player_pos[0] + player_size[0] / 2 < screen_size[0] - player_size[0] / 2 - 1)
-        {
-          player_pos[0]++;
-        }
-      }
 
       if(update() == -1) return -1;
       frame_counter++;
