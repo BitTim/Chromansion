@@ -11,12 +11,11 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Event event;
 
-bool quit = false;
+const Uint8 *key_state = SDL_GetKeyboardState(NULL);
+unsigned int last_time = 0, current_time;
+int unused;
 
-TTF_Font *font;
-SDL_Color text_color = {255, 255, 255};
-SDL_Color green_color = {53, 214, 56};
-SDL_Color red_color = {214, 53, 56};
+bool quit = false;
 
 void screen_init()
 {
@@ -41,11 +40,28 @@ void screen_end()
 void init()
 {
   screen_init();
+
+  load_textures(renderer);
 }
 
 void end()
 {
   screen_end();
+}
+
+int draw_screen()
+{
+  SDL_SetRenderDrawColor(renderer, 63, 63, 63, 255);
+  SDL_RenderClear(renderer);
+
+  if(render_texture_simple(renderer, 0, screen_size[0] / 2 - player_size[0] / 2, screen_size[1] / 2 - player_size[1] / 2, player_size[0], player_size[1]) == -1) return -1;
+
+  SDL_RenderPresent(renderer);
+}
+
+int update()
+{
+  if(draw_screen() == -1) return -1;
 }
 
 int main()
@@ -54,13 +70,20 @@ int main()
 
   while(!quit)
   {
-    SDL_PollEvent(&event);
+    current_time = SDL_GetTicks();
+ 		if(current_time > last_time + 5)
+ 		{
+ 			last_time = current_time;
+      SDL_PollEvent(&event);
 
-    switch(event.type)
-    {
-      case SDL_QUIT:
-        quit = true;
-        break;
+      switch(event.type)
+      {
+        case SDL_QUIT:
+          quit = true;
+          break;
+      }
+
+      if(update() == -1) return -1;
     }
   }
 
