@@ -6,10 +6,37 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-SDL_Surface *texture_loader;
-std::vector<SDL_Texture*> texture_atlas;
+SDL_Texture* load_texture(SDL_Renderer* renderer, std::string path);
 
-int load_texture(SDL_Renderer* renderer, std::string path)
+class Sprite
+{
+public:
+  SDL_Texture *texture;
+
+  bool animated = false;
+  int frames = 1;
+  int speed = 100;
+
+  Sprite(SDL_Renderer *renderer, std::string path)
+  {
+    texture = load_texture(renderer, path);
+  }
+
+  Sprite(SDL_Renderer *renderer, std::string path, int num_frames, int init_speed)
+  {
+    animated = true;
+    frames = num_frames;
+    speed = init_speed;
+
+    texture = load_texture(renderer, path);
+  }
+};
+
+SDL_Surface *texture_loader;
+Sprite *sprite_loader;
+std::vector<Sprite> texture_atlas;
+
+SDL_Texture* load_texture(SDL_Renderer* renderer, std::string path)
 {
   texture_loader = IMG_Load(path.c_str());
 
@@ -19,34 +46,20 @@ int load_texture(SDL_Renderer* renderer, std::string path)
     if(texture_loader == NULL)
     {
       printf("Error 201: Could not load Texure, %s", IMG_GetError());
-      return -1;
+      return NULL;
     }
   }
 
-  texture_atlas.push_back(SDL_CreateTextureFromSurface(renderer, texture_loader));
-  return 0;
+  return SDL_CreateTextureFromSurface(renderer, texture_loader);
 }
 
 int load_textures(SDL_Renderer* renderer)
 {
-  if(load_texture(renderer, "data/textures/player_white.png")) return -1;
+  sprite_loader = new Sprite(renderer, "data/textures/player_white.png", 12, 40);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
 
   SDL_FreeSurface(texture_loader);
-  return 0;
-}
-
-int render_texture_simple(SDL_Renderer *renderer, int id, int x, int y, int w, int h)
-{
-  if(id >= texture_atlas.size()) return -1;
-
-  SDL_Rect dst_rect;
-
-  dst_rect.x = x;
-  dst_rect.y = y;
-  dst_rect.w = w;
-  dst_rect.h = h;
-
-  SDL_RenderCopy(renderer, texture_atlas[id], NULL, &dst_rect);
   return 0;
 }
 

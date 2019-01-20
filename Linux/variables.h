@@ -1,6 +1,8 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
+#include <vector>
+
 int screen_size[2] = {1366, 768};
 bool fullscreen = false;
 
