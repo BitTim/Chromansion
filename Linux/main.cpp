@@ -27,7 +27,7 @@ int player_pos[2] = {spawn_point[0], spawn_point[1]};
 float player_pos_raster[2] = {(float)(spawn_point[0] / tile_size[0]), (float)(spawn_point[1] / tile_size[1])};
 
 int player_speed[2] = {0, 0};
-int player_max_speed[2] = {10, 25};
+int player_max_speed[2] = {5, 25};
 int player_acceleration = 1;
 
 int gravity = 2;
@@ -70,7 +70,7 @@ int draw_screen()
   SDL_RenderClear(renderer);
 
   //render_texture_simple(renderer, 0, player_pos[0], player_pos[1], player_size[0], player_size[1]);
-  if(render_player(renderer, player_pos[0], player_pos[1])) return -1;
+  if(render_player(renderer, player_pos[0], player_pos[1], player_speed)) return -1;
 
   SDL_RenderPresent(renderer);
 

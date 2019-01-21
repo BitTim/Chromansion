@@ -44,9 +44,11 @@ int render_texture_animated(SDL_Renderer *renderer, int id, int x, int y, int w,
   return 0;
 }
 
-int render_player(SDL_Renderer* renderer, int x, int y)
+int render_player(SDL_Renderer* renderer, int x, int y, int speed[2])
 {
-  if(render_texture_animated(renderer, 0, x, y, player_size[0], player_size[1]) == -1) return -1;
+  if(speed[0] == 0) if(render_texture_animated(renderer, 0, x, y, player_size[0], player_size[1]) == -1) return -1;
+  if(speed[0] > 0) if(render_texture_animated(renderer, 1, x, y, player_size[0], player_size[1]) == -1) return -1;
+  if(speed[0] < 0) if(render_texture_animated(renderer, 2, x, y, player_size[0], player_size[1]) == -1) return -1;
   return 0;
 }
 
