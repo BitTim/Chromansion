@@ -55,15 +55,15 @@ SDL_Texture* load_texture(SDL_Renderer* renderer, std::string path)
 
 int load_textures(SDL_Renderer* renderer)
 {
-  sprite_loader = new Sprite(renderer, "data/textures/player_white_idle.png", 12, 40);
+  sprite_loader = new Sprite(renderer, "data/textures/player_white_idle.png", 12, 75);
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
-  sprite_loader = new Sprite(renderer, "data/textures/player_white_running_right.png", 8, 60);
+  sprite_loader = new Sprite(renderer, "data/textures/player_white_running_right.png", 8, 75);
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
-  sprite_loader = new Sprite(renderer, "data/textures/player_white_running_left.png", 8, 60);
+  sprite_loader = new Sprite(renderer, "data/textures/player_white_running_left.png", 8, 75);
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
