@@ -67,6 +67,10 @@ int load_textures(SDL_Renderer* renderer)
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
+  sprite_loader = new Sprite(renderer, "data/textures/brick_white.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
   SDL_FreeSurface(texture_loader);
   return 0;
 }

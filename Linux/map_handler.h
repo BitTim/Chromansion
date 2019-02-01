@@ -10,8 +10,29 @@ struct Map
 {
   unsigned char w;
   unsigned char h;
+  unsigned char sx;
+  unsigned char sy;
   std::vector<unsigned char> data;
 };
+
+int write_map(const char* path, Map map)
+{
+  std::ofstream map_file;
+  map_file.open(path, std::fstream::binary);
+
+  char sign_a = 'M';
+  char sign_b = 'P';
+
+  map_file << sign_a << sign_b << map.w << map.h << map.sx << map.sy;
+
+  for(int i = 0; i < map.w * map.h; i++)
+  {
+    map_file << map.data[i];
+  }
+
+  map_file.close();
+  return 0;
+}
 
 Map load_map(const char* path)
 {
@@ -30,6 +51,9 @@ Map load_map(const char* path)
   Map map;
   map_file.read((char*)&map.w, 1);
   map_file.read((char*)&map.h, 1);
+
+  map_file.read((char*)&map.sx, 1);
+  map_file.read((char*)&map.sy, 1);
 
   char tmp;
   for(int i = 0; i < map.w * map.h; i++)

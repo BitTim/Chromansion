@@ -45,28 +45,36 @@ int render_texture_animated(SDL_Renderer *renderer, int id, int x, int y, int w,
   return 0;
 }
 
-int render_player(SDL_Renderer* renderer, int x, int y, int speed[2])
+int render_player(SDL_Renderer* renderer, int x, int y, int offset[2], int speed[2])
 {
-  if(speed[0] == 0) if(render_texture_animated(renderer, 0, x, y, player_size[0], player_size[1]) == -1) return -1;
-  if(speed[0] > 0) if(render_texture_animated(renderer, 1, x, y, player_size[0], player_size[1]) == -1) return -1;
-  if(speed[0] < 0) if(render_texture_animated(renderer, 2, x, y, player_size[0], player_size[1]) == -1) return -1;
+  if(speed[0] == 0) if(render_texture_animated(renderer, 0, x - offset[0], y - offset[1], player_size[0], player_size[1]) == -1) return -1;
+  if(speed[0] > 0) if(render_texture_animated(renderer, 1, x - offset[0], y - offset[1], player_size[0], player_size[1]) == -1) return -1;
+  if(speed[0] < 0) if(render_texture_animated(renderer, 2, x - offset[0], y - offset[1], player_size[0], player_size[1]) == -1) return -1;
   return 0;
 }
 
-int render_map(SDL_Renderer* renderer, Map map)
+int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, int index_offset[2], int render_offset[2])
 {
-  for(int j = 0; j < map.h; j++)
+  if(map.data[(y + index_offset[1]) * map.w + x + index_offset[0]] > num_tile_textures - 1) return -1;
+  switch(map.data[(y + index_offset[1]) * map.w + x + index_offset[0]])
   {
-    for(int i = 0; i < map.w; i++)
+    case 0:
+      SDL_SetRenderDrawColor(renderer, 63, 63, 63, 255);
+      SDL_RenderDrawBox(renderer, x * tile_size[0], y * tile_size[1], tile_size[0], tile_size[1]);
+      break;
+    case 1:
+      render_texture_simple(renderer, 3, x * tile_size[0] + render_offset[0], y * tile_size[1] + render_offset[1], tile_size[0], tile_size[1]);
+      break;
+  }
+}
+
+int render_map(SDL_Renderer* renderer, Map map, int index_offset[2], int render_offset[2])
+{
+  for(int j = 0; j < visible_tiles[1]; j++)
+  {
+    for(int i = 0; i < visible_tiles[0]; i++)
     {
-      if(map.data[j * map.w + i] > num_tile_textures - 1) return -1;
-      switch(map.data[j * map.w + i])
-      {
-        case 1:
-          SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
-          SDL_RenderDrawBox(renderer, i * tile_size[0], j * tile_size[1], tile_size[0], tile_size[1]);
-          break;
-      }
+      if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
     }
   }
 
