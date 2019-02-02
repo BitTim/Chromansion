@@ -69,6 +69,9 @@ int init()
   player_pos[0] = map.sx * tile_size[0];
   player_pos[1] = (map.h  - map.sy - 2) * tile_size[1];
 
+  player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
+  player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
+
   index_offset[0] = camera_pos[0] - (float)visible_tiles[0] / 2.0f;
   index_offset[1] = camera_pos[1] - (float)visible_tiles[0] / 2.0f;
 
@@ -96,7 +99,7 @@ void end()
 
 int draw_screen()
 {
-
+  if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
   if(render_player(renderer, player_pos[0], player_pos[1], render_offset, player_speed) == -1) return -1;
 
   SDL_RenderPresent(renderer);

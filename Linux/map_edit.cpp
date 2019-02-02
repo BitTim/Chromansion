@@ -125,6 +125,8 @@ void change_size()
   if(map.w < visible_tiles[0]) visible_tiles[0] = map.w;
   if(map.h < visible_tiles[1]) visible_tiles[1] = map.h;
 
+  render_map(renderer, map, index_offset, render_offset);
+
   map.data.resize(map.w * map.h, 0);
 }
 
