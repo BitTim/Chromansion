@@ -195,7 +195,7 @@ void draw_screen()
   SDL_RenderPresent(renderer);
 }
 
-int main()
+int WinMain(int argc, char* argv[])
 {
   if(init() == -1) return -1;
   draw_screen();
