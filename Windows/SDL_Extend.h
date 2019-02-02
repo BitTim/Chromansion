@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <math.h>
 
 void SDL_RenderDrawBox(SDL_Renderer *renderer, int x, int y, int width, int height)
 {
