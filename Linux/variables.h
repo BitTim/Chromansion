@@ -4,7 +4,7 @@
 #include <vector>
 #include "map_handler.h"
 
-int screen_size[2] = {1366, 768};
+int screen_size[2] = {1024, 720};
 bool fullscreen = false;
 
 int tile_size[2] = {32, 32};

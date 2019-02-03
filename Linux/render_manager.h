@@ -57,7 +57,7 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, int index_offset[
 {
   if((y + index_offset[1]) * map.w + x + index_offset[0] >= map.data.size())
   {
-    printf("Could not access Map data at X: %d   Y: %d   Map Size: %d   Index Off X: &d   Index Off Y: %d\n", x, y, map.data.size(), index_offset[0], index_offset[1]);
+    printf("Could not access Map data at X: %d   Y: %d   Map Size: %d   Index Off X: %d   Index Off Y: %d\n", x, y, (int)map.data.size(), index_offset[0], index_offset[1]);
     return -1;
   }
 

@@ -1,4 +1,4 @@
-//Chromatic v0.1.0
+//Chromansion v0.1.0
 //Copyright (c) BitTim 2019
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -11,17 +11,32 @@
 #include "map_handler.h"
 #include "collision_handler.h"
 
+#define NUM_FRAMES_FPS_UPDATE 10
+
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Event event;
 
+SDL_Color text_color = {255, 255, 255};
+TTF_Font* font;
+
 const Uint8 *key_state = SDL_GetKeyboardState(NULL);
-unsigned int last_time = 0, current_time;
+unsigned int last_time = 0, current_time = 0;
+
+unsigned int render_times[NUM_FRAMES_FPS_UPDATE];
+int render_time = 0;
+int last_render_time = 0;
+
+int frame_index = 0;
+int num_frames = 0;
+
 int unused;
 
 int frame_counter = 0;
-bool quit = false;
+float fps = 0;
+int text_size[2];
 
+bool quit = false;
 bool space_pressed = false;
 
 int player_pos[2] = {0, 0};
@@ -36,7 +51,10 @@ int player_acceleration = 1;
 int collision_err = 0;
 
 int index_offset[2] = {};
+int prev_index_offset[2] = {};
+
 int render_offset[2] = {};
+int prev_render_offset[2] = {};
 
 void screen_init()
 {
@@ -63,7 +81,10 @@ int init()
 {
   screen_init();
   load_textures(renderer);
-  map = load_map("data/maps/test3.map");
+
+  font = TTF_OpenFont("data/fonts/font.ttf", 16);
+
+  map = load_map("data/maps/test2.map");
   if(map.w == -1) return -1;
 
   player_pos[0] = map.sx * tile_size[0];
@@ -83,6 +104,12 @@ int init()
   render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
   render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
 
+  prev_index_offset[0] = index_offset[0];
+  prev_index_offset[1] = index_offset[1];
+
+  prev_render_offset[0] = render_offset[0];
+  prev_render_offset[1] = render_offset[1];
+
   SDL_SetRenderDrawColor(renderer, 63, 63, 63, 255);
   SDL_RenderClear(renderer);
 
@@ -99,18 +126,61 @@ void end()
 
 int draw_screen()
 {
-  if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
+  if(index_offset[0] != prev_index_offset[0] || index_offset[1] != prev_index_offset[1] || render_offset[0] != prev_render_offset[0] || render_offset[1] != prev_render_offset[1])
+  {
+    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+  }
+  else
+  {
+    if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
+
+    for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
+    {
+      for(int i = 0; i < text_size[0] / tile_size[0] + 1; i++)
+      {
+        redraw_tile(renderer, map, i, j, index_offset, render_offset);
+      }
+    }
+  }
+
   if(render_player(renderer, player_pos[0], player_pos[1], index_offset, player_speed) == -1) return -1;
 
-  SDL_RenderPresent(renderer);
+  char tmp[20];
+  sprintf(tmp, "%.2f FPS", fps);
 
+  TTF_Print(renderer, tmp, &text_size[0], &text_size[1], 0, 0, screen_size[0], font, text_color);
+
+  SDL_RenderPresent(renderer);
   return 0;
+}
+
+void calc_fps()
+{
+  int count = 0;
+
+  render_time = SDL_GetTicks();
+  render_times[frame_index] = render_time - last_render_time;
+
+  last_render_time = render_time;
+  num_frames++;
+
+  frame_index = num_frames % NUM_FRAMES_FPS_UPDATE;
+
+  if (num_frames < NUM_FRAMES_FPS_UPDATE) count = num_frames;
+  else count = NUM_FRAMES_FPS_UPDATE;
+
+  fps = 0;
+  for (int i = 0; i < count; i++) fps += render_times[i];
+
+  fps /= count;
+  fps = 1000.f / fps;
 }
 
 int update()
 {
   if(frame_counter >= 10)
   {
+    calc_fps();
     frame_counter = 0;
 
     if(sprint) player_max_speed[0] = 10;
@@ -178,6 +248,12 @@ int update()
     render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
 
     if(draw_screen() == -1) return -1;
+
+    prev_index_offset[0] = index_offset[0];
+    prev_index_offset[1] = index_offset[1];
+
+    prev_render_offset[0] = render_offset[0];
+    prev_render_offset[1] = render_offset[1];
   }
 
   return 0;
@@ -187,12 +263,12 @@ int main()
 {
   if(init() == -1) return -1;
 
+  last_render_time = SDL_GetTicks();
   while(!quit)
   {
     current_time = SDL_GetTicks();
  		if(current_time > last_time + 1)
  		{
- 			last_time = current_time;
       SDL_PollEvent(&event);
 
       switch(event.type)
@@ -223,6 +299,8 @@ int main()
       else sprint = false;
 
       if(update() == -1) return -1;
+
+ 			last_time = current_time;
       frame_counter++;
     }
   }
