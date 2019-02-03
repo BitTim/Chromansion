@@ -50,8 +50,8 @@ int player_acceleration = 1;
 
 int collision_err = 0;
 
-int index_offset[2] = {};
-int prev_index_offset[2] = {};
+float index_offset[2] = {};
+float prev_index_offset[2] = {};
 
 int render_offset[2] = {};
 int prev_render_offset[2] = {};
@@ -143,7 +143,7 @@ int draw_screen()
     }
   }
 
-  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, player_speed) == -1) return -1;
+  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, render_offset, player_speed) == -1) return -1;
 
   char tmp[20];
   sprintf(tmp, "%.2f FPS", fps);
