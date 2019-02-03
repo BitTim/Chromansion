@@ -42,7 +42,7 @@ int collision(int pos[2], float pos_raster[2], int speed[2])
 
   if(speed[1] <= 0)
   {
-    if(map.data[(int)pos_new_raster[1] * map.w + (int)pos_new_raster[0]] != 0 || map.data[(int)pos_new_raster[1] * map.w + (int)(pos_new_raster[0] + 0.9f)] != 0)
+    if(map.data[(int)pos_new_raster[1] * map.w + (int)pos_new_raster[0]] != 0 || map.data[(int)pos_new_raster[1] * map.w + (int)(pos_new_raster[0] + 0.9f)] != 0 || pos[1] < 0)
     {
       pos_new_raster[1] = (int)pos_new_raster[1] + 1;
       speed[1] = 0;
@@ -50,7 +50,7 @@ int collision(int pos[2], float pos_raster[2], int speed[2])
   }
   else
   {
-    if(map.data[((int)pos_new_raster[1] + 2) * map.w + (int)pos_new_raster[0]] != 0 || map.data[((int)pos_new_raster[1] + 2) * map.w + (int)(pos_new_raster[0] + 0.9f)] != 0)
+    if(map.data[((int)pos_new_raster[1] + 2) * map.w + (int)pos_new_raster[0]] != 0 || map.data[((int)pos_new_raster[1] + 2) * map.w + (int)(pos_new_raster[0] + 0.9f)] != 0 || (pos_raster[1] + 2) * tile_size[0] >= map.h * tile_size[0])
     {
       pos_new_raster[1] = (int)pos_new_raster[1];
       speed[1] = 0;

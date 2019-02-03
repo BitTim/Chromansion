@@ -163,6 +163,8 @@ void change_brush()
 
 void draw_screen()
 {
+  if(camera_pos[0] != index_offset[0] || camera_pos[1] != index_offset[1]) render_map(renderer, map, index_offset, render_offset);
+
   index_offset[0] = camera_pos[0];
   index_offset[1] = camera_pos[1];
 
@@ -174,8 +176,8 @@ void draw_screen()
   render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
   render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
 
-  mouse_raster[0] = mouse_pos[0] / tile_size[0] + index_offset[0];
-  mouse_raster[1] = mouse_pos[1] / tile_size[1] + index_offset[1];
+  mouse_raster[0] = mouse_pos[0] / tile_size[0];
+  mouse_raster[1] = mouse_pos[1] / tile_size[1];
 
   if(mouse_raster[0] < map.w && mouse_raster[1] < map.h && draw) map.data[(mouse_raster[1] + index_offset[1]) * map.w + mouse_raster[0] + index_offset[0]] = brush_id;
 
@@ -184,10 +186,10 @@ void draw_screen()
 
   SDL_SetRenderDrawColor(renderer, 255, 128, 128, 255);
 
-  SDL_RenderDrawBox(renderer, mouse_raster[0] * tile_size[0] + index_offset[0], mouse_raster[1] * tile_size[1] + index_offset[1], tile_size[0], 2);
-  SDL_RenderDrawBox(renderer, mouse_raster[0] * tile_size[0] + index_offset[0], mouse_raster[1] * tile_size[1] + index_offset[1], 2, tile_size[1]);
-  SDL_RenderDrawBox(renderer, mouse_raster[0] * tile_size[0] + index_offset[0], (mouse_raster[1] + 1) * tile_size[1] - 2 + index_offset[1], tile_size[0], 2);
-  SDL_RenderDrawBox(renderer, (mouse_raster[0] + 1) * tile_size[0] - 2 + index_offset[0], mouse_raster[1] * tile_size[1] + index_offset[1], 2, tile_size[1]);
+  SDL_RenderDrawBox(renderer, mouse_raster[0] * tile_size[0], mouse_raster[1] * tile_size[1], tile_size[0], 2);
+  SDL_RenderDrawBox(renderer, mouse_raster[0] * tile_size[0], mouse_raster[1] * tile_size[1], 2, tile_size[1]);
+  SDL_RenderDrawBox(renderer, mouse_raster[0] * tile_size[0], (mouse_raster[1] + 1) * tile_size[1] - 2, tile_size[0], 2);
+  SDL_RenderDrawBox(renderer, (mouse_raster[0] + 1) * tile_size[0] - 2, mouse_raster[1] * tile_size[1], 2, tile_size[1]);
 
   prev_mouse_raster[0] = mouse_raster[0];
   prev_mouse_raster[1] = mouse_raster[1];
@@ -217,20 +219,30 @@ int main()
           break;
 
         case SDL_MOUSEBUTTONDOWN:
-  				draw = true;
+          switch(event.button.button)
+          {
+            case SDL_BUTTON_LEFT:
+              draw = true;
+              break;
+          }
   				break;
 
         case SDL_MOUSEBUTTONUP:
-          draw = false;
+          switch(event.button.button)
+          {
+            case SDL_BUTTON_LEFT:
+              draw = false;
+              break;
+          }
           break;
       }
 
       if(key_state[SDL_SCANCODE_ESCAPE] == 1) quit = true;
 
-      if(key_state[SDL_SCANCODE_W] == 1 && camera_pos[1] > 0) camera_pos[1]--;
-      if(key_state[SDL_SCANCODE_A] == 1 && camera_pos[0] > 0) camera_pos[0]--;
-      if(key_state[SDL_SCANCODE_S] == 1 && key_state[SDL_SCANCODE_LCTRL] == 0 && camera_pos[1] < map.h - visible_tiles[1]) camera_pos[1]++;
-      if(key_state[SDL_SCANCODE_D] == 1 && camera_pos[0] < map.w - visible_tiles[0]) camera_pos[0]++;
+      if(key_state[SDL_SCANCODE_W] == 1 && camera_pos[1] >= 0) camera_pos[1]--;
+      if(key_state[SDL_SCANCODE_A] == 1 && camera_pos[0] >= 0) camera_pos[0]--;
+      if(key_state[SDL_SCANCODE_S] == 1 && key_state[SDL_SCANCODE_LCTRL] == 0 && camera_pos[1] <= map.h - visible_tiles[1]) camera_pos[1]++;
+      if(key_state[SDL_SCANCODE_D] == 1 && camera_pos[0] <= map.w - visible_tiles[0]) camera_pos[0]++;
 
       if(key_state[SDL_SCANCODE_Q] == 1) change_size();
       if(key_state[SDL_SCANCODE_E] == 1) change_spawn();

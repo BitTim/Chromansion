@@ -63,11 +63,11 @@ int init()
 {
   screen_init();
   load_textures(renderer);
-  map = load_map("data/maps/test.map");
+  map = load_map("data/maps/test3.map");
   if(map.w == -1) return -1;
 
   player_pos[0] = map.sx * tile_size[0];
-  player_pos[1] = (map.h  - map.sy - 2) * tile_size[1];
+  player_pos[1] = (map.h - map.sy - 1) * tile_size[1];
 
   player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
   player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
@@ -100,7 +100,7 @@ void end()
 int draw_screen()
 {
   if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
-  if(render_player(renderer, player_pos[0], player_pos[1], render_offset, player_speed) == -1) return -1;
+  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, player_speed) == -1) return -1;
 
   SDL_RenderPresent(renderer);
 

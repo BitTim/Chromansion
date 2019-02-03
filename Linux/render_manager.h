@@ -57,7 +57,7 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, int index_offset[
 {
   if((y + index_offset[1]) * map.w + x + index_offset[0] >= map.data.size())
   {
-    printf("Could not acces Map data at X: %d   Y: %d\n", x, y);
+    printf("Could not access Map data at X: %d   Y: %d   Map Size: %d   Index Off X: &d   Index Off Y: %d\n", x, y, map.data.size(), index_offset[0], index_offset[1]);
     return -1;
   }
 
@@ -77,37 +77,40 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, int index_offset[
 
 int update_partial_map(SDL_Renderer* renderer, int player_pos[2], float player_pos_raster[2], int player_speed[2], int index_offset[2], int render_offset[2])
 {
-  if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1] - 1, index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1], index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 1, index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 2, index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1] - 1, index_offset, render_offset) == -1) return -1;
-
-  if(player_pos_raster[0] < map.w - 1.1f)
+  if(player_pos_raster[1] <= map.h - 1.1f && player_pos_raster[1] >= 0.1f)
   {
-    if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1] - 1, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1], index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 1, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 2, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] - 1, index_offset, render_offset) == -1) return -1;
-  }
+    if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1], index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[1] + 1 < map.h - 0.9f) if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[1] + 2 < map.h - 0.9f) if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[1] - 1 > 0.1f) if(redraw_tile(renderer, map, player_pos_raster[0], player_pos_raster[1] - 1, index_offset, render_offset) == -1) return -1;
+    if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1], index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[1] + 1 < map.h - 0.9f) if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 1, index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[1] + 2 < map.h - 0.9f) if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 2, index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[1] - 1 > 0.1f) if(redraw_tile(renderer, map, (int)((player_pos[0] - player_speed[0])) / tile_size[0], (int)((player_pos[1] - player_speed[1])) / tile_size[1] - 1, index_offset, render_offset) == -1) return -1;
 
-  if(player_pos_raster[0] > 0.1f)
-  {
-    if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1] - 1, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1], index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 1, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 2, index_offset, render_offset) == -1) return -1;
-    if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] - 1, index_offset, render_offset) == -1) return -1;
+    if(player_pos_raster[0] < map.w - 1.1f)
+    {
+      if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1], index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 1 < map.h - 0.9f) if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 2 < map.h - 0.9f) if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] - 1 > 0.1f) if(redraw_tile(renderer, map, player_pos_raster[0] + 0.9f, player_pos_raster[1] - 1, index_offset, render_offset) == -1) return -1;
+      if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1], index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 1 < map.h - 0.9f) if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 1, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 2 < map.h - 0.9f) if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 2, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] - 1 > 0.1f) if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] + 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] - 1, index_offset, render_offset) == -1) return -1;
+    }
+
+    if(player_pos_raster[0] > 0.1f)
+    {
+      if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1], index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 1 < map.h - 0.9f) if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 2 < map.h - 0.9f) if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] - 1 > 0.1f) if(redraw_tile(renderer, map, player_pos_raster[0] - 0.9f, player_pos_raster[1] - 1, index_offset, render_offset) == -1) return -1;
+      if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1], index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 1 < map.h - 0.9f) if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 1, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] + 2 < map.h - 0.9f) if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] + 2, index_offset, render_offset) == -1) return -1;
+      if(player_pos_raster[1] - 1 > 0.1f) if(redraw_tile(renderer, map, (int)((player_pos[0] + tile_size[0] - player_speed[0])) / tile_size[0] - 0.9f, (int)((player_pos[1] - player_speed[1])) / tile_size[1] - 1, index_offset, render_offset) == -1) return -1;
+    }
   }
 
   return 0;
