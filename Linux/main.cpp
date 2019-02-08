@@ -94,13 +94,13 @@ int init()
   player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
   player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
 
-  index_offset[0] = camera_pos[0] - (float)visible_tiles[0] / 2.0f;
-  index_offset[1] = camera_pos[1] - (float)visible_tiles[1] / 2.0f;
+  index_offset[0] = camera_pos[0] - visible_tiles[0] / 2.0f;
+  index_offset[1] = camera_pos[1] - visible_tiles[1] / 2.0f;
 
   if (index_offset[0] < 0) index_offset[0] = 0;
   if (index_offset[1] < 0) index_offset[1] = 0;
-  if (index_offset[0] > map.w - visible_tiles[0]) index_offset[0] = map.w - visible_tiles[0];
-  if (index_offset[1] > map.h - visible_tiles[1]) index_offset[1] = map.h - visible_tiles[1];
+  if (index_offset[0] > map.w - (int)visible_tiles[0] - 1) index_offset[0] = map.w - (int)visible_tiles[0] - 1;
+  if (index_offset[1] > map.h - (int)visible_tiles[1] - 1) index_offset[1] = map.h - (int)visible_tiles[1] - 1;
 
   render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
   render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
@@ -133,8 +133,7 @@ int draw_screen()
   }
   else
   {
-    //if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
-    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    if(update_map(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
     
     for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
     {
@@ -238,13 +237,13 @@ int update()
     camera_pos[0] = player_pos_raster[0];
     camera_pos[1] = player_pos_raster[1];
 
-    index_offset[0] = camera_pos[0] - (float)visible_tiles[0] / 2.0f;
-		index_offset[1] = camera_pos[1] - (float)visible_tiles[1] / 2.0f;
+    index_offset[0] = camera_pos[0] - visible_tiles[0] / 2.0f;
+		index_offset[1] = camera_pos[1] - visible_tiles[1] / 2.0f;
 
 		if (index_offset[0] < 0) index_offset[0] = 0;
 		if (index_offset[1] < 0) index_offset[1] = 0;
-		if (index_offset[0] > map.w - visible_tiles[0]) index_offset[0] = map.w - visible_tiles[0];
-    if (index_offset[1] > map.h - visible_tiles[1]) index_offset[1] = map.h - visible_tiles[1];
+		if (index_offset[0] > map.w - (int)visible_tiles[0]) index_offset[0] = map.w - (int)visible_tiles[0];
+    if (index_offset[1] > map.h - (int)visible_tiles[1]) index_offset[1] = map.h - (int)visible_tiles[1];
 
     render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
     render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
