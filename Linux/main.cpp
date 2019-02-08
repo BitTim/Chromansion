@@ -38,6 +38,7 @@ int text_size[2];
 
 bool quit = false;
 bool space_pressed = false;
+bool lalt_pressed = false;
 
 int player_pos[2] = {0, 0};
 float player_pos_raster[2] = {0, 0};
@@ -94,7 +95,7 @@ int init()
   player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
 
   index_offset[0] = camera_pos[0] - (float)visible_tiles[0] / 2.0f;
-  index_offset[1] = camera_pos[1] - (float)visible_tiles[0] / 2.0f;
+  index_offset[1] = camera_pos[1] - (float)visible_tiles[1] / 2.0f;
 
   if (index_offset[0] < 0) index_offset[0] = 0;
   if (index_offset[1] < 0) index_offset[1] = 0;
@@ -132,8 +133,9 @@ int draw_screen()
   }
   else
   {
-    if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
-
+    //if(update_partial_map(renderer, player_pos, player_pos_raster, player_speed, index_offset, render_offset) == -1) return -1;
+    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    
     for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
     {
       for(int i = 0; i < text_size[0] / tile_size[0] + 1; i++)
@@ -237,7 +239,7 @@ int update()
     camera_pos[1] = player_pos_raster[1];
 
     index_offset[0] = camera_pos[0] - (float)visible_tiles[0] / 2.0f;
-		index_offset[1] = camera_pos[1] - (float)visible_tiles[0] / 2.0f;
+		index_offset[1] = camera_pos[1] - (float)visible_tiles[1] / 2.0f;
 
 		if (index_offset[0] < 0) index_offset[0] = 0;
 		if (index_offset[1] < 0) index_offset[1] = 0;
@@ -278,10 +280,7 @@ int main()
           break;
       }
 
-      if(key_state[SDL_SCANCODE_ESCAPE] == 1)
-      {
-        quit = true;
-      }
+      if(key_state[SDL_SCANCODE_ESCAPE] == 1) quit = true;
 
       if(key_state[SDL_SCANCODE_SPACE] == 1 && !space_pressed)
       {
@@ -297,6 +296,13 @@ int main()
 
       if(key_state[SDL_SCANCODE_LSHIFT] == 1) sprint = true;
       else sprint = false;
+
+      if(key_state[SDL_SCANCODE_LALT] == 1 && !lalt_pressed)
+      {
+        lalt_pressed = true;
+        printf("X: %.2f Y: %.2f   Speed X: %.2f Speed Y: %.2f\n", player_pos_raster[0], player_pos_raster[1], (float)player_speed[0] / (float)tile_size[0], (float)player_speed[1] / (float)tile_size[1]);
+      }
+      else if(key_state[SDL_SCANCODE_LALT] == 0) lalt_pressed = false;
 
       if(update() == -1) return -1;
 

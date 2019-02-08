@@ -55,15 +55,19 @@ int render_player(SDL_Renderer* renderer, int x, int y, float index_offset[2], i
 
 int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offset[2], int render_offset[2])
 {
-  if((y + (int)index_offset[1]) * map.w + x + (int)index_offset[0] >= map.data.size())
+  int curr_data;
+
+  if(((int)index_offset[1] + y) * map.w + (int)index_offset[0] + x >= map.data.size())
   {
     printf("Could not access Map data at X: %d   Y: %d   Map Size: %d   Index Off X: %f   Index Off Y: %f   Visible X: %d   Visible Y: %d\n", x, y, (int)map.data.size(), index_offset[0], index_offset[1], visible_tiles[0], visible_tiles[1]);
     return -1;
   }
 
-  if(map.data[(y + (int)index_offset[1]) * map.w + x + (int)index_offset[0]] > num_tile_textures - 1) return -1;
+  curr_data = map.data[((int)index_offset[1] + y) * map.w + (int)index_offset[0] + x];
 
-  switch(map.data[(y + (int)index_offset[1]) * map.w + x + (int)index_offset[0]])
+  if(curr_data > num_tile_textures - 1) return -1;
+
+  switch(curr_data)
   {
     case 0:
       SDL_SetRenderDrawColor(renderer, 63, 63, 63, 255);
@@ -75,7 +79,7 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offse
   }
 }
 
-int update_partial_map(SDL_Renderer* renderer, int player_pos[2], float player_pos_raster[2], int player_speed[2], float index_offset[2], int render_offset[2])
+/*int update_partial_map(SDL_Renderer* renderer, int player_pos[2], float player_pos_raster[2], int player_speed[2], float index_offset[2], int render_offset[2])
 {
   if(player_pos_raster[1] <= map.h - 1.1f && player_pos_raster[1] >= 0.1f)
   {
@@ -114,10 +118,12 @@ int update_partial_map(SDL_Renderer* renderer, int player_pos[2], float player_p
   }
 
   return 0;
-}
+}*/
 
 int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int render_offset[2])
 {
+  int t_before = SDL_GetTicks();
+
   for(int j = 0; j < visible_tiles[1]; j++)
   {
     for(int i = 0; i < visible_tiles[0]; i++)
@@ -125,6 +131,9 @@ int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int rende
       if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
     }
   }
+
+  int t_after = SDL_GetTicks();
+  printf("Time to render one frame: %d Visible X: %d   Visible Y: %d\n", t_after - t_before, visible_tiles[0], visible_tiles[1]);
 
   return 0;
 }
