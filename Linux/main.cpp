@@ -85,7 +85,7 @@ int init()
 
   font = TTF_OpenFont("data/fonts/font.ttf", 16);
 
-  map = load_map("data/maps/test2.map");
+  map = load_map("data/maps/test4.map");
   if(map.w == -1) return -1;
 
   player_pos[0] = map.sx * tile_size[0];
@@ -133,8 +133,9 @@ int draw_screen()
   }
   else
   {
-    if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
-    
+    //if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
+    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+
     for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
     {
       for(int i = 0; i < text_size[0] / tile_size[0] + 1; i++)
