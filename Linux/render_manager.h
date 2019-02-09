@@ -79,7 +79,7 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offse
   }
 }
 
-int update_map(SDL_Renderer* renderer, float player_pos_r[2], float player_pos_r_prev[2], int player_speed[2], float index_offset[2], float index_offset_prev[2], int render_offset[2], int render_offset_prev[2])
+int update_map_no_scroll(SDL_Renderer* renderer, float player_pos_r[2], float player_pos_r_prev[2], int player_speed[2], float index_offset[2], float index_offset_prev[2], int render_offset[2], int render_offset_prev[2])
 {
   //Clamp Coordinates to visible space
   float player_pos_raster[2] = {player_pos_r[0] - index_offset[0], player_pos_r[1] - index_offset[1]};
@@ -100,6 +100,20 @@ int update_map(SDL_Renderer* renderer, float player_pos_r[2], float player_pos_r
   if((float)render_offset[0] / (float)tile_size[0] > (float)player_speed[0] / (float)tile_size[0]) if(redraw_tile(renderer, map, (int)player_pos_raster[0] + 1, (int)player_pos_raster[1], index_offset, render_offset) == -1) return -1;
   if((float)render_offset[1] / (float)tile_size[1] > (float)player_speed[1] / (float)tile_size[1]) if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
   if((float)render_offset[0] / (float)tile_size[0] > (float)player_speed[0] / (float)tile_size[0] && (float)render_offset[1] / (float)tile_size[1] > (float)player_speed[1] / (float)tile_size[1]) if(redraw_tile(renderer, map, (int)player_pos_raster[0] + 1, (int)player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
+}
+
+int update_map_scroll(SDL_Renderer* renderer, float player_pos_r[2], float player_pos_r_prev[2], int player_speed[2], float index_offset[2], float index_offset_prev[2], int render_offset[2], int render_offset_prev[2])
+{
+  //Clamp Coordinates to visible space
+  float player_pos_raster[2] = {player_pos_r[0] - index_offset[0], player_pos_r[1] - index_offset[1]};
+  float player_pos_raster_prev[2] = {player_pos_r_prev[0] - index_offset_prev[0], player_pos_r_prev[1] - index_offset_prev[1]};
+
+  //Update Player Tiles
+  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1], index_offset, render_offset) == -1) return -1;
+  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
+
+  //Update Tiles
+  
 }
 
 int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int render_offset[2])

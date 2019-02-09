@@ -99,8 +99,8 @@ int init()
 
   if (index_offset[0] < 0) index_offset[0] = 0;
   if (index_offset[1] < 0) index_offset[1] = 0;
-  if (index_offset[0] > map.w - (int)visible_tiles[0] - 1) index_offset[0] = map.w - (int)visible_tiles[0] - 1;
-  if (index_offset[1] > map.h - (int)visible_tiles[1] - 1) index_offset[1] = map.h - (int)visible_tiles[1] - 1;
+  if (index_offset[0] > map.w - (int)visible_tiles[0]) index_offset[0] = map.w - (int)visible_tiles[0];
+  if (index_offset[1] > map.h - (int)visible_tiles[1]) index_offset[1] = map.h - (int)visible_tiles[1];
 
   render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
   render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
@@ -133,7 +133,7 @@ int draw_screen()
   }
   else
   {
-    if(update_map(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
+    if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
     
     for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
     {
