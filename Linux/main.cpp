@@ -85,8 +85,11 @@ int init()
 
   font = TTF_OpenFont("data/fonts/font.ttf", 16);
 
-  map = load_map("data/maps/test4.map");
+  map = load_map("data/maps/test2.map");
   if(map.w == -1) return -1;
+
+  if(visible_tiles[0] > map.w) visible_tiles[0] = map.w;
+  if(visible_tiles[1] > map.h) visible_tiles[1] = map.h;
 
   player_pos[0] = map.sx * tile_size[0];
   player_pos[1] = (map.h - map.sy - 1) * tile_size[1];
@@ -111,12 +114,13 @@ int init()
   prev_render_offset[0] = render_offset[0];
   prev_render_offset[1] = render_offset[1];
 
-  SDL_SetRenderDrawColor(renderer, 63, 63, 63, 255);
+  SDL_SetRenderDrawColor(renderer, 35, 35, 35, 255);
   SDL_RenderClear(renderer);
 
   if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
 
   SDL_RenderPresent(renderer);
+  for(int i = 0; i < 1000000; i++) printf("%d / 1000000\n", i);
   return 0;
 }
 
@@ -129,12 +133,13 @@ int draw_screen()
 {
   if(index_offset[0] != prev_index_offset[0] || index_offset[1] != prev_index_offset[1] || render_offset[0] != prev_render_offset[0] || render_offset[1] != prev_render_offset[1])
   {
-    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    if(update_map_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
+    //if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
   }
   else
   {
-    //if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
-    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
+    //if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
 
     for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
     {
