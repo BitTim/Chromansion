@@ -67,7 +67,55 @@ int load_textures(SDL_Renderer* renderer)
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
+  sprite_loader = new Sprite(renderer, "data/textures/player_red_idle.png", 12, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/player_red_running_right.png", 8, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/player_red_running_left.png", 8, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/player_green_idle.png", 12, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/player_green_running_right.png", 8, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/player_green_running_left.png", 8, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/player_blue_idle.png", 12, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/player_blue_running_right.png", 8, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/player_blue_running_left.png", 8, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
   sprite_loader = new Sprite(renderer, "data/textures/brick_white.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/brick_red.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/brick_green.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/brick_blue.png");
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 

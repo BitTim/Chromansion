@@ -26,7 +26,7 @@ bool quit = false;
 int camera_pos[2] = {0, 0};
 std::string path = "data/maps/";
 
-int index_offset[2] = {0, 0};
+float index_offset[2] = {0, 0};
 int render_offset[2] = {0, 0};
 
 int mouse_pos[2] = {0, 0};

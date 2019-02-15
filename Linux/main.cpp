@@ -10,6 +10,7 @@
 #include "render_manager.h"
 #include "map_handler.h"
 #include "collision_handler.h"
+#include "gui_handler.h"
 
 #define NUM_FRAMES_FPS_UPDATE 10
 
@@ -57,6 +58,14 @@ float prev_index_offset[2] = {};
 int render_offset[2] = {};
 int prev_render_offset[2] = {};
 
+int mouse_pos[2] = {0, 0};
+int mouse_hover_color = 0;
+
+bool active_window = false;
+int window_type = 0;
+
+std::vector<col> colors;
+
 void screen_init()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -85,7 +94,7 @@ int init()
 
   font = TTF_OpenFont("data/fonts/font.ttf", 16);
 
-  map = load_map("data/maps/test2.map");
+  map = load_map("data/maps/test5.map");
   if(map.w == -1) return -1;
 
   if(visible_tiles[0] > map.w) visible_tiles[0] = map.w;
@@ -119,8 +128,21 @@ int init()
 
   if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
 
+  col tmp_col;
+
+  for(int i = 0; i < 24; i++)
+  {
+		 if(i == 0) tmp_col = {255, 255, 255, false};
+	else if(i == 1) tmp_col = {255, 0,	 0,   false};
+	else if(i == 2) tmp_col = {0,   255, 0,   false};
+	else if(i == 3) tmp_col = {0,   0,   255, false};
+	else if(i == 4) tmp_col = {255, 0,   255, true };
+	else 			tmp_col = {0,   0,   0,   true };
+
+	colors.push_back(tmp_col);
+  }
+
   SDL_RenderPresent(renderer);
-  for(int i = 0; i < 1000000; i++) printf("%d / 1000000\n", i);
   return 0;
 }
 
@@ -133,29 +155,32 @@ int draw_screen()
 {
   if(index_offset[0] != prev_index_offset[0] || index_offset[1] != prev_index_offset[1] || render_offset[0] != prev_render_offset[0] || render_offset[1] != prev_render_offset[1])
   {
-    if(update_map_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
-    //if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    //if(update_map_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
+    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
   }
   else
   {
-    if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
-    //if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    //if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
+    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+  }
 
-    for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
+
+  for(int j = 0; j < text_size[1] / tile_size[1] + 1; j++)
+  {
+    for(int i = 0; i < text_size[0] / tile_size[0] + 1; i++)
     {
-      for(int i = 0; i < text_size[0] / tile_size[0] + 1; i++)
-      {
-        redraw_tile(renderer, map, i, j, index_offset, render_offset);
-      }
+      redraw_tile(renderer, map, i, j, index_offset, render_offset);
     }
   }
 
-  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, render_offset, player_speed) == -1) return -1;
+  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, render_offset, player_speed, player_color) == -1) return -1;
 
   char tmp[20];
   sprintf(tmp, "%.2f FPS", fps);
 
   TTF_Print(renderer, tmp, &text_size[0], &text_size[1], 0, 0, screen_size[0], font, text_color);
+
+  if(active_window && window_type == 1) mouse_hover_color = GUI_ColorSelect(renderer, colors, screen_size[0] / 2 - (tile_size[0] * 16 / 2) + 5, screen_size[1] / 2 - (tile_size[1] * 2 / 2) + 5, tile_size[0], tile_size[1], 16, mouse_pos);	
 
   SDL_RenderPresent(renderer);
   return 0;
@@ -244,11 +269,11 @@ int update()
     camera_pos[1] = player_pos_raster[1];
 
     index_offset[0] = camera_pos[0] - visible_tiles[0] / 2.0f;
-		index_offset[1] = camera_pos[1] - visible_tiles[1] / 2.0f;
+    index_offset[1] = camera_pos[1] - visible_tiles[1] / 2.0f;
 
-		if (index_offset[0] < 0) index_offset[0] = 0;
-		if (index_offset[1] < 0) index_offset[1] = 0;
-		if (index_offset[0] > map.w - (int)visible_tiles[0]) index_offset[0] = map.w - (int)visible_tiles[0];
+    if (index_offset[0] < 0) index_offset[0] = 0;
+    if (index_offset[1] < 0) index_offset[1] = 0;
+    if (index_offset[0] > map.w - (int)visible_tiles[0]) index_offset[0] = map.w - (int)visible_tiles[0];
     if (index_offset[1] > map.h - (int)visible_tiles[1]) index_offset[1] = map.h - (int)visible_tiles[1];
 
     render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
@@ -273,47 +298,70 @@ int main()
   last_render_time = SDL_GetTicks();
   while(!quit)
   {
-    current_time = SDL_GetTicks();
- 		if(current_time > last_time + 1)
- 		{
-      SDL_PollEvent(&event);
+      current_time = SDL_GetTicks();
+ 	  if(current_time > last_time + 1)
+ 	  {
+		SDL_GetMouseState(&mouse_pos[0], &mouse_pos[1]);
+      	SDL_PollEvent(&event);
 
-      switch(event.type)
-      {
-        case SDL_QUIT:
-          quit = true;
-          break;
-      }
+      	switch(event.type)
+      	{
+        	case SDL_QUIT:
+        		quit = true;
+          		break;
 
-      if(key_state[SDL_SCANCODE_ESCAPE] == 1) quit = true;
+			case SDL_MOUSEBUTTONDOWN:
+				switch(event.button.button)
+				{
+					case SDL_BUTTON_LEFT:
+						if(colors[mouse_hover_color].locked || mouse_hover_color == -1) mouse_hover_color = player_color;
+						else if(!colors[mouse_hover_color].locked)
+						{
+							active_window = false;
+							window_type = 0;
+						}
 
-      if(key_state[SDL_SCANCODE_SPACE] == 1 && !space_pressed)
-      {
-        space_pressed = true;
-        if(standing || double_jump)
-        {
-          if(!standing) double_jump = false;
-          player_speed[1] = -player_max_speed[1];
-        }
-        jumping = true;
-      }
-      else if(key_state[SDL_SCANCODE_SPACE] == 0) space_pressed = false;
+						player_color = mouse_hover_color;
+						break;
+				}
+				break;
+      	}
 
-      if(key_state[SDL_SCANCODE_LSHIFT] == 1) sprint = true;
-      else sprint = false;
+      	if(key_state[SDL_SCANCODE_ESCAPE] == 1) quit = true;
 
-      if(key_state[SDL_SCANCODE_LALT] == 1 && !lalt_pressed)
-      {
-        lalt_pressed = true;
-        printf("X: %.2f Y: %.2f   Speed X: %.2f Speed Y: %.2f\n", player_pos_raster[0], player_pos_raster[1], (float)player_speed[0] / (float)tile_size[0], (float)player_speed[1] / (float)tile_size[1]);
-      }
-      else if(key_state[SDL_SCANCODE_LALT] == 0) lalt_pressed = false;
+      	if(key_state[SDL_SCANCODE_SPACE] == 1 && !space_pressed)
+      	{
+        	space_pressed = true;
+        	if(standing || double_jump)
+        	{
+        		if(!standing) double_jump = false;
+          		player_speed[1] = -player_max_speed[1];
+        	}
+        	jumping = true;
+      	}
+      	else if(key_state[SDL_SCANCODE_SPACE] == 0) space_pressed = false;
 
-      if(update() == -1) return -1;
+      	if(key_state[SDL_SCANCODE_LSHIFT] == 1) sprint = true;
+      	else sprint = false;
 
- 			last_time = current_time;
-      frame_counter++;
-    }
+      	if(key_state[SDL_SCANCODE_LALT] == 1 && !lalt_pressed)
+      	{
+        	lalt_pressed = true;
+        	printf("X: %.2f Y: %.2f   Speed X: %.2f Speed Y: %.2f\n", player_pos_raster[0], player_pos_raster[1], (float)player_speed[0] / (float)tile_size[0], (float)player_speed[1] / (float)tile_size[1]);
+      	}	
+      	else if(key_state[SDL_SCANCODE_LALT] == 0) lalt_pressed = false;
+
+	  	if(key_state[SDL_SCANCODE_C] == 1 && !active_window)
+	  	{
+			active_window = true;
+	  		window_type = 1;
+		}		
+
+      	if(update() == -1) return -1;
+
+ 		last_time = current_time;
+      	frame_counter++;
+      }	
   }
 
   end();
