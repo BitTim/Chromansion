@@ -11,6 +11,7 @@
 #include "map_handler.h"
 #include "collision_handler.h"
 #include "gui_handler.h"
+#include "powerup_handler.h"
 
 #define NUM_FRAMES_FPS_UPDATE 10
 
@@ -63,6 +64,8 @@ int mouse_hover_color = 0;
 
 bool active_window = false;
 int window_type = 0;
+
+int collected_powerup = 0;
 
 std::vector<col> colors;
 
@@ -133,9 +136,9 @@ int init()
   for(int i = 0; i < 24; i++)
   {
 		 if(i == 0) tmp_col = {255, 255, 255, false};
-	else if(i == 1) tmp_col = {255, 0,	 0,   false};
-	else if(i == 2) tmp_col = {0,   255, 0,   false};
-	else if(i == 3) tmp_col = {0,   0,   255, false};
+	else if(i == 1) tmp_col = {255, 0,	 0,   true };
+	else if(i == 2) tmp_col = {0,   255, 0,   true };
+	else if(i == 3) tmp_col = {0,   0,   255, true };
 	else if(i == 4) tmp_col = {255, 0,   255, true };
 	else 			tmp_col = {0,   0,   0,   true };
 
@@ -173,7 +176,8 @@ int draw_screen()
     }
   }
 
-  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, render_offset, player_speed, player_color) == -1) return -1;
+  if(render_powerups(renderer, map.powups, index_offset) == -1) return -1;
+  if(render_player(renderer, player_pos[0], player_pos[1], index_offset, render_offset, player_speed, player_color, direction) == -1) return -1;
 
   char tmp[20];
   sprintf(tmp, "%.2f FPS", fps);
@@ -218,8 +222,10 @@ int update()
     if(sprint) player_max_speed[0] = 10;
     if(!sprint) player_max_speed[0] = 5;
 
-    if(key_state[SDL_SCANCODE_A] == 1)
+    if(key_state[SDL_SCANCODE_A] == 1 && key_state[SDL_SCANCODE_D] == 0)
     {
+	  direction = 2;
+	
       if(player_speed[0] > -player_max_speed[0])
       {
         player_speed[0] -= player_acceleration;
@@ -237,8 +243,10 @@ int update()
       }
     }
 
-    if(key_state[SDL_SCANCODE_D] == 1)
+    if(key_state[SDL_SCANCODE_D] == 1 && key_state[SDL_SCANCODE_A] == 0)
     {
+	  direction = 1;
+
       if(player_speed[0] < player_max_speed[0])
       {
         player_speed[0] += player_acceleration;
@@ -256,11 +264,27 @@ int update()
       }
     }
 
+	if(key_state[SDL_SCANCODE_A] == 0 && key_state[SDL_SCANCODE_D] == 0) direction = 0;
+
     if(player_speed[1] < player_max_speed[1]) player_speed[1] += gravity;
     if(player_speed[1] > 0) jumping = false;
 
     collision_err = collision(player_pos, player_pos_raster, player_speed);
     if(collision_err == -1) printf("Collision Failed\n");
+
+	collected_powerup = check_collect(player_pos_raster, map.powups);
+	if(collected_powerup == 1) colors[1].locked = false;
+	if(collected_powerup == 2)
+	{
+		colors[2].locked = false;
+		
+		for(pup &pow : map.powups)
+		{
+			if(pow.type == 3) pow.visible = true;
+		}
+	}
+
+	if(collected_powerup == 3) colors[3].locked = false;
 
     player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
     player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
@@ -271,10 +295,10 @@ int update()
     index_offset[0] = camera_pos[0] - visible_tiles[0] / 2.0f;
     index_offset[1] = camera_pos[1] - visible_tiles[1] / 2.0f;
 
-    if (index_offset[0] < 0) index_offset[0] = 0;
-    if (index_offset[1] < 0) index_offset[1] = 0;
-    if (index_offset[0] > map.w - (int)visible_tiles[0]) index_offset[0] = map.w - (int)visible_tiles[0];
-    if (index_offset[1] > map.h - (int)visible_tiles[1]) index_offset[1] = map.h - (int)visible_tiles[1];
+    if(index_offset[0] < 0) index_offset[0] = 0;
+    if(index_offset[1] < 0) index_offset[1] = 0;
+    if(index_offset[0] > map.w - (int)visible_tiles[0]) index_offset[0] = map.w - (int)visible_tiles[0];
+    if(index_offset[1] > map.h - (int)visible_tiles[1]) index_offset[1] = map.h - (int)visible_tiles[1]; 
 
     render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
     render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);

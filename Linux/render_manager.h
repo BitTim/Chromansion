@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "powerup_handler.h"
 #include "texture_handler.h"
 #include "SDL_Extend.h"
 
@@ -45,7 +46,7 @@ int render_texture_animated(SDL_Renderer *renderer, int id, int x, int y, int w,
   return 0;
 }
 
-int render_player(SDL_Renderer* renderer, int x, int y, float index_offset[2], int render_offset[2], int speed[2], int player_color)
+int render_player(SDL_Renderer* renderer, int x, int y, float index_offset[2], int render_offset[2], int speed[2], int player_color, int player_dir_state)
 {
   int standing, right, left;
 
@@ -80,11 +81,32 @@ int render_player(SDL_Renderer* renderer, int x, int y, float index_offset[2], i
 		break;
   }
 
-  if(speed[0] == 0) if(render_texture_animated(renderer, standing, x - index_offset[0] * tile_size[0], y - index_offset[1] * tile_size[1], player_size[0], player_size[1]) == -1) return -1;
-  if(speed[0] > 0) if(render_texture_animated(renderer, right, x - index_offset[0] * tile_size[0], y - index_offset[1] * tile_size[1], player_size[0], player_size[1]) == -1) return -1;
-  if(speed[0] < 0) if(render_texture_animated(renderer, left, x - index_offset[0] * tile_size[0], y - index_offset[1] * tile_size[1], player_size[0], player_size[1]) == -1) return -1;
+  if(player_dir_state == 0) if(render_texture_animated(renderer, standing, x - index_offset[0] * tile_size[0], y - index_offset[1] * tile_size[1], player_size[0], player_size[1]) == -1) return -1;
+  if(player_dir_state == 1) if(render_texture_animated(renderer, right, x - index_offset[0] * tile_size[0], y - index_offset[1] * tile_size[1], player_size[0], player_size[1]) == -1) return -1;
+  if(player_dir_state == 2) if(render_texture_animated(renderer, left, x - index_offset[0] * tile_size[0], y - index_offset[1] * tile_size[1], player_size[0], player_size[1]) == -1) return -1;
 
   return 0;
+}
+
+int render_powerups(SDL_Renderer* renderer, std::vector<pup> pup_list, float index_offset[2])
+{
+	for(pup pow : pup_list)
+	{
+		float pup_x = (float)pow.x - index_offset[0];
+		float pup_y = (float)pow.y - index_offset[1];
+		int texture_id = 0;
+
+		if(pup_x >= 0 && pup_y >= 0 && pow.visible)
+		{
+			if(pow.type == 1) texture_id = 16; 
+			if(pow.type == 2) texture_id = 17;
+			if(pow.type == 3) texture_id = 18;
+			
+			render_texture_animated(renderer, texture_id, (int)(pup_x * (float)tile_size[0] + 5), (int)(pup_y * (float)tile_size[1] + 5), tile_size[0] - 10, tile_size[1] - 10);
+		}
+	}
+
+	return 0;
 }
 
 int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offset[2], int render_offset[2])
@@ -218,9 +240,6 @@ int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int rende
   }
 
   int t_after = SDL_GetTicks();
-  //printf("Time to render one frame: %d Visible X: %.f   Visible Y: %.2f\n", t_after - t_before, visible_tiles[0], visible_tiles[1]);
-
-  return 0;
 }
 
 #endif // RENDER_MANAGER_H

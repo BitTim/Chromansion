@@ -118,6 +118,18 @@ int load_textures(SDL_Renderer* renderer)
   sprite_loader = new Sprite(renderer, "data/textures/brick_blue.png");
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
+  
+  sprite_loader = new Sprite(renderer, "data/textures/unlock_red.png", 16, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/unlock_green.png", 16, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/unlock_blue.png", 16, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
 
   SDL_FreeSurface(texture_loader);
   return 0;
