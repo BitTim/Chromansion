@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <unistd.h>
 
 #include "variables.h"
 #include "texture_handler.h"
@@ -20,6 +21,7 @@ SDL_Renderer *renderer;
 SDL_Event event;
 
 SDL_Color text_color = {255, 255, 255};
+SDL_Color win_color = {128, 255, 128};
 TTF_Font* font;
 
 const Uint8 *key_state = SDL_GetKeyboardState(NULL);
@@ -97,7 +99,7 @@ int init()
 
   font = TTF_OpenFont("data/fonts/font.ttf", 16);
 
-  map = load_map("data/maps/test5.map");
+  map = load_map("data/maps/menu.map");
   if(map.w == -1) return -1;
 
   if(visible_tiles[0] > map.w) visible_tiles[0] = map.w;
@@ -129,7 +131,7 @@ int init()
   SDL_SetRenderDrawColor(renderer, 35, 35, 35, 255);
   SDL_RenderClear(renderer);
 
-  if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+  if(render_map(renderer, map, index_offset, render_offset, false) == -1) return -1;
 
   col tmp_col;
 
@@ -143,6 +145,11 @@ int init()
 	else 			tmp_col = {0,   0,   0,   true };
 
 	colors.push_back(tmp_col);
+  }
+
+  for(int color : map.colors)
+  {
+	colors[color].locked = false;
   }
 
   SDL_RenderPresent(renderer);
@@ -159,12 +166,12 @@ int draw_screen()
   if(index_offset[0] != prev_index_offset[0] || index_offset[1] != prev_index_offset[1] || render_offset[0] != prev_render_offset[0] || render_offset[1] != prev_render_offset[1])
   {
     //if(update_map_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
-    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    if(render_map(renderer, map, index_offset, render_offset, false) == -1) return -1;
   }
   else
   {
     //if(update_map_no_scroll(renderer, player_pos_raster, player_pos_raster_old, player_speed, index_offset, prev_index_offset, render_offset, prev_render_offset) == -1) return -1;
-    if(render_map(renderer, map, index_offset, render_offset) == -1) return -1;
+    if(render_map(renderer, map, index_offset, render_offset, false) == -1) return -1;
   }
 
 
@@ -172,7 +179,7 @@ int draw_screen()
   {
     for(int i = 0; i < text_size[0] / tile_size[0] + 1; i++)
     {
-      redraw_tile(renderer, map, i, j, index_offset, render_offset);
+      redraw_tile(renderer, map, i, j, index_offset, render_offset, false);
     }
   }
 
@@ -210,6 +217,15 @@ void calc_fps()
 
   fps /= count;
   fps = 1000.f / fps;
+}
+
+void win_condition()
+{
+	int text_w, text_h;
+	TTF_Print(renderer, "You won!", &text_w, &text_h, screen_size[0] / 2 - text_w / 2, screen_size[1] / 2 - text_h / 2, screen_size[0], font, win_color);
+
+	usleep(3000000);	
+	quit = true;
 }
 
 int update()
@@ -272,7 +288,16 @@ int update()
     collision_err = collision(player_pos, player_pos_raster, player_speed);
     if(collision_err == -1) printf("Collision Failed\n");
 
+	if(player_color == 2)
+	{
+		for(pup &pow : map.powups)
+		{
+			if(pow.type == 4) pow.visible = true;
+		}
+	}
+
 	collected_powerup = check_collect(player_pos_raster, map.powups);
+	
 	if(collected_powerup == 1) colors[1].locked = false;
 	if(collected_powerup == 2)
 	{
@@ -285,6 +310,7 @@ int update()
 	}
 
 	if(collected_powerup == 3) colors[3].locked = false;
+	if(collected_powerup == 4) win_condition();
 
     player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
     player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];

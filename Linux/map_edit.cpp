@@ -38,6 +38,8 @@ int brush_id = 0;
 bool saving = false;
 bool draw = false;
 
+std::fstream map_file;
+
 void screen_init()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -80,8 +82,13 @@ int init()
   path.append(tmp);
   path.append(".map");
 
-  change_size();
-  change_spawn();
+  std::fstream map_file_test(path.c_str());
+  if(map_file_test.good()) map = load_map(path.c_str()); 
+  else
+  {
+  	change_size();
+  	change_spawn();
+  }
 
   index_offset[0] = camera_pos[0];
   index_offset[1] = camera_pos[1];
@@ -94,7 +101,7 @@ int init()
   render_offset[0] = (int)((index_offset[0] - (int)index_offset[0]) * tile_size[0]);
   render_offset[1] = (int)((index_offset[1] - (int)index_offset[1]) * tile_size[1]);
 
-  render_map(renderer, map, index_offset, render_offset);
+  render_map(renderer, map, index_offset, render_offset, true);
   SDL_RenderPresent(renderer);
 
   return 0;
@@ -125,7 +132,7 @@ void change_size()
   if(map.w < visible_tiles[0]) visible_tiles[0] = map.w;
   if(map.h < visible_tiles[1]) visible_tiles[1] = map.h;
 
-  render_map(renderer, map, index_offset, render_offset);
+  render_map(renderer, map, index_offset, render_offset, true);
 
   map.data.resize(map.w * map.h, 0);
 }
@@ -163,7 +170,7 @@ void change_brush()
 
 void draw_screen()
 {
-  if(camera_pos[0] != index_offset[0] || camera_pos[1] != index_offset[1]) render_map(renderer, map, index_offset, render_offset);
+  /*if(camera_pos[0] != index_offset[0] || camera_pos[1] != index_offset[1])*/ render_map(renderer, map, index_offset, render_offset, true);
 
   index_offset[0] = camera_pos[0];
   index_offset[1] = camera_pos[1];
@@ -181,8 +188,8 @@ void draw_screen()
 
   if(mouse_raster[0] < map.w && mouse_raster[1] < map.h && draw) map.data[(mouse_raster[1] + index_offset[1]) * map.w + mouse_raster[0] + index_offset[0]] = brush_id;
 
-  redraw_tile(renderer, map, mouse_raster[0], mouse_raster[1], index_offset, render_offset);
-  redraw_tile(renderer, map, prev_mouse_raster[0], prev_mouse_raster[1], index_offset, render_offset);
+  redraw_tile(renderer, map, mouse_raster[0], mouse_raster[1], index_offset, render_offset, true);
+  redraw_tile(renderer, map, prev_mouse_raster[0], prev_mouse_raster[1], index_offset, render_offset, true);
 
   SDL_SetRenderDrawColor(renderer, 255, 128, 128, 255);
 
@@ -217,27 +224,12 @@ int main()
         case SDL_QUIT:
           quit = true;
           break;
-
-        case SDL_MOUSEBUTTONDOWN:
-          switch(event.button.button)
-          {
-            case SDL_BUTTON_LEFT:
-              draw = true;
-              break;
-          }
-  				break;
-
-        case SDL_MOUSEBUTTONUP:
-          switch(event.button.button)
-          {
-            case SDL_BUTTON_LEFT:
-              draw = false;
-              break;
-          }
-          break;
       }
 
       if(key_state[SDL_SCANCODE_ESCAPE] == 1) quit = true;
+
+	  if(key_state[SDL_SCANCODE_SPACE] == 1) draw = true;
+	  else if(key_state[SDL_SCANCODE_SPACE] == 0) draw = false;
 
       if(key_state[SDL_SCANCODE_W] == 1 && camera_pos[1] >= 0) camera_pos[1]--;
       if(key_state[SDL_SCANCODE_A] == 1 && camera_pos[0] >= 0) camera_pos[0]--;

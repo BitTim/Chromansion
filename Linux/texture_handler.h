@@ -131,6 +131,30 @@ int load_textures(SDL_Renderer* renderer)
   texture_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
+  sprite_loader = new Sprite(renderer, "data/textures/door_green_top.png", 4, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/door_green_bottom.png", 4, 75);
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/red_green_brick.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/red_blue_brick.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/green_blue_brick.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/red_green_blue_brick.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
   SDL_FreeSurface(texture_loader);
   return 0;
 }

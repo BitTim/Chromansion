@@ -16,8 +16,19 @@ int collision(int pos[2], float pos_raster[2], int speed[2])
   pos_new_raster[0] = (float)pos_new[0] / (float)tile_size[0];
   pos_new_raster[1] = (float)pos_new[1] / (float)tile_size[0];
 
-  std::vector<int> exceptions {0, 2, 3, 4};
-  exceptions.erase(std::remove(exceptions.begin(), exceptions.end(), player_color + 1), exceptions.end());
+  std::vector<std::vector<int>> except_colors = {{2, 5, 6, 8}, {3, 5, 7, 8}, {4, 6, 7, 8}};
+  std::vector<int> exceptions {0, 2, 3, 4, 5, 6, 7, 8};
+
+  int iter;
+
+  for(int i = 0; i < except_colors[player_color - 1].size(); i++)
+  {
+  	iter = std::find(exceptions.begin(), exceptions.end(), except_colors[player_color - 1][i]);
+  	if(iter != exceptions.end())
+  	{
+    	exceptions.erase(iter);
+	}
+  }
 
   if(speed[0] <= 0)
   {

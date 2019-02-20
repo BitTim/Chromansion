@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "powerup_handler.h"
+#include "door_manager.h"
+#include "gui_handler.h"
 
 struct Map
 {
@@ -15,6 +17,8 @@ struct Map
   unsigned char sx;
   unsigned char sy;
   std::vector<unsigned char> data;
+  std::vector<int> colors;
+  std::vector<door> doors;
   std::vector<pup> powups;
 };
 
@@ -68,6 +72,35 @@ Map load_map(const char* path)
   {
     map_file.read((char*)&tmp, 1);
     map.data.push_back(tmp);
+  }
+
+  int num_cols;
+
+  map_file.read((char*)&tmp, 1);
+  num_cols = (int)tmp;
+
+  for(int i = 0; i < num_cols; i++)
+  {
+	map_file.read((char*)&tmp, 1);
+	map.colors.push_back((int)tmp);
+  }
+
+  int num_doors;
+
+  map_file.read((char*)&tmp, 1);
+  num_doors = (int)tmp;
+
+  char door_x, door_y, door_id;
+  door tmp_door;
+
+  for(int i = 0; i < num_doors; i++)
+  {
+	map_file.read((char*)&door_x, 1);
+	map_file.read((char*)&door_y, 1);
+	map_file.read((char*)&door_id, 1);
+
+	tmp_door = {(int)door_x, (int)door_y, (int)door_id};
+	map.doors.push_back(tmp_door);
   }
 
   bool eof = false;

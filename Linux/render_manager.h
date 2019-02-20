@@ -101,15 +101,20 @@ int render_powerups(SDL_Renderer* renderer, std::vector<pup> pup_list, float ind
 			if(pow.type == 1) texture_id = 16; 
 			if(pow.type == 2) texture_id = 17;
 			if(pow.type == 3) texture_id = 18;
-			
-			render_texture_animated(renderer, texture_id, (int)(pup_x * (float)tile_size[0] + 5), (int)(pup_y * (float)tile_size[1] + 5), tile_size[0] - 10, tile_size[1] - 10);
+			if(pow.type == 4) 		
+			{
+				render_texture_animated(renderer, 20, (int)(pup_x * (float)tile_size[0]), (int)((pup_y + 1) * (float)tile_size[1]), tile_size[0], tile_size[1]);
+				texture_id = 19;
+			}	
+
+			render_texture_animated(renderer, texture_id, (int)(pup_x * (float)tile_size[0]), (int)(pup_y * (float)tile_size[1]), tile_size[0], tile_size[1]);
 		}
 	}
 
 	return 0;
 }
 
-int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offset[2], int render_offset[2])
+int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offset[2], int render_offset[2], bool override_color)
 {
   int curr_data;
 
@@ -133,17 +138,42 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offse
       render_texture_simple(renderer, 12, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
       break;
     case 2:
-      if(player_color == 1) render_texture_simple(renderer, 13, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+      if(player_color == 1 || override_color) render_texture_simple(renderer, 13, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
 	  else clear = true;
 	  break;
     case 3:
-      if(player_color == 2) render_texture_simple(renderer, 14, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+      if(player_color == 2 || override_color) render_texture_simple(renderer, 14, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
 	  else clear = true;
       break;
     case 4:
-      if(player_color == 3) render_texture_simple(renderer, 15, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+      if(player_color == 3 || override_color) render_texture_simple(renderer, 15, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
 	  else clear = true;
       break;
+	case 5:
+	  if(player_color == 1)      render_texture_simple(renderer, 13, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(player_color == 2) render_texture_simple(renderer, 14, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(override_color)    render_texture_simple(renderer, 21, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  else clear = true;
+	  break;
+	case 6:
+	  if(player_color == 1)      render_texture_simple(renderer, 13, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(player_color == 3) render_texture_simple(renderer, 15, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(override_color)    render_texture_simple(renderer, 22, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  else clear = true;
+	  break;
+	case 7:
+	  if(player_color == 2)      render_texture_simple(renderer, 14, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(player_color == 3) render_texture_simple(renderer, 15, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(override_color)    render_texture_simple(renderer, 23, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  else clear = true;
+	  break;
+	case 8:
+	  if(player_color == 1)      render_texture_simple(renderer, 13, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(player_color == 2) render_texture_simple(renderer, 14, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(player_color == 3) render_texture_simple(renderer, 15, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+	  else if(override_color)    render_texture_simple(renderer, 24, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  else clear = true;
+	  break;
   }
 
   if(clear)
@@ -152,82 +182,19 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offse
     SDL_SetRenderDrawColor(renderer, 63, 63, 63, 255);
     SDL_RenderDrawBox(renderer, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
   }
+
+  return 0;
 }
 
 int update_map_player(SDL_Renderer* renderer, float player_pos_raster[2], float index_offset[2], int render_offset[2])
 {
   //Update Player Tiles
-  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
+  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1], index_offset, render_offset, false) == -1) return -1;
+  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 1, index_offset, render_offset, false) == -1) return -1;
+  return 0;
 }
 
-int update_map_no_scroll(SDL_Renderer* renderer, float player_pos_r[2], float player_pos_r_prev[2], int player_speed[2], float index_offset[2], float index_offset_prev[2], int render_offset[2], int render_offset_prev[2])
-{
-  //Clamp Coordinates to visible space
-  float player_pos_raster[2] = {player_pos_r[0] - index_offset[0], player_pos_r[1] - index_offset[1]};
-  float player_pos_raster_prev[2] = {player_pos_r_prev[0] - index_offset_prev[0], player_pos_r_prev[1] - index_offset_prev[1]};
-
-  //Update Preious Tiles
-  if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0], (int)player_pos_raster_prev[1], index_offset_prev, render_offset_prev) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0], (int)player_pos_raster_prev[1] + 1, index_offset_prev, render_offset_prev) == -1) return -1;
-
-  if((float)render_offset_prev[0] - (int)render_offset_prev[0] > 0) if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0] + 1, (int)player_pos_raster_prev[1], index_offset_prev, render_offset_prev) == -1) return -1;
-  if((float)render_offset_prev[1] - (int)render_offset_prev[1] > 0) if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0], (int)player_pos_raster_prev[1] + 2, index_offset_prev, render_offset_prev) == -1) return -1;
-  if((float)render_offset_prev[0] - (int)render_offset_prev[0] > 0 && (float)render_offset_prev[1] - (int)render_offset_prev[1] > 0) if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0] + 1, (int)player_pos_raster_prev[1] + 2, index_offset_prev, render_offset_prev) == -1) return -1;
-
-  //if((float)render_offset_prev[0] / (float)tile_size[0] > (float)player_speed[0] / (float)tile_size[0]) if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0] + 1, (int)player_pos_raster_prev[1], index_offset_prev, render_offset_prev) == -1) return -1;
-  //if((float)render_offset_prev[1] / (float)tile_size[1] > (float)player_speed[1] / (float)tile_size[1]) if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0], (int)player_pos_raster_prev[1] + 2, index_offset_prev, render_offset_prev) == -1) return -1;
-  //if((float)render_offset_prev[0] / (float)tile_size[0] > (float)player_speed[0] / (float)tile_size[0] && (float)render_offset_prev[1] / (float)tile_size[1] > (float)player_speed[1] / (float)tile_size[1]) if(redraw_tile(renderer, map, (int)player_pos_raster_prev[0] + 1, (int)player_pos_raster_prev[1] + 2, index_offset_prev, render_offset_prev) == -1) return -1;
-
-  //Update Curent Tiles
-  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-  if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 1, index_offset, render_offset) == -1) return -1;
-
-  if((float)render_offset[0] - (int)render_offset[0] > 0) if(redraw_tile(renderer, map, (int)player_pos_raster[0] + 1, (int)player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-  if((float)render_offset[1] - (int)render_offset[1] > 0) if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-  if((float)render_offset[0] - (int)render_offset[0] > 0 && (float)render_offset[1] - (int)render_offset[1] > 0) if(redraw_tile(renderer, map, (int)player_pos_raster[0] + 1, (int)player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-
-  //if((float)render_offset[0] / (float)tile_size[0] > (float)player_speed[0] / (float)tile_size[0]) if(redraw_tile(renderer, map, (int)player_pos_raster[0] + 1, (int)player_pos_raster[1], index_offset, render_offset) == -1) return -1;
-  //if((float)render_offset[1] / (float)tile_size[1] > (float)player_speed[1] / (float)tile_size[1]) if(redraw_tile(renderer, map, (int)player_pos_raster[0], (int)player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-  //if((float)render_offset[0] / (float)tile_size[0] > (float)player_speed[0] / (float)tile_size[0] && (float)render_offset[1] / (float)tile_size[1] > (float)player_speed[1] / (float)tile_size[1]) if(redraw_tile(renderer, map, (int)player_pos_raster[0] + 1, (int)player_pos_raster[1] + 2, index_offset, render_offset) == -1) return -1;
-}
-
-int update_map_scroll(SDL_Renderer* renderer, float player_pos_r[2], float player_pos_r_prev[2], int player_speed[2], float index_offset[2], float index_offset_prev[2], int render_offset[2], int render_offset_prev[2])
-{
-  //Clamp Coordinates to visible space
-  float player_pos_raster[2] = {player_pos_r[0] - index_offset[0], player_pos_r[1] - index_offset[1]};
-  float player_pos_raster_prev[2] = {player_pos_r_prev[0] - index_offset_prev[0], player_pos_r_prev[1] - index_offset_prev[1]};
-
-  //Update Tiles
-  for(int j = 0; j < (int)visible_tiles[1]; j++)
-  {
-    for(int i = 0; i < (int)visible_tiles[0]; i++)
-    {
-      int curr_data = map.data[((int)index_offset[1] + j) * map.w + (int)index_offset[0] + i];
-      int prev_data = map.data[((int)index_offset_prev[1] + j) * map.w + (int)index_offset_prev[0] + i];
-
-      printf("%d   %d\n", index_offset[0], index_offset[1]);
-      //printf("Curr X: %d Y: %d D: %d   Prev X: %d Y: %d D: %d\n", index_offset[0] + i, index_offset[1] + j, curr_data, index_offset_prev[0] + i, index_offset_prev[1] + j, prev_data);
-
-      if(curr_data != prev_data)
-      {
-        if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-        if((float)render_offset_prev[0] - (int)render_offset_prev[0] > 0) if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-        if((float)render_offset_prev[1] - (int)render_offset_prev[1] > 0) if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-        if((float)render_offset_prev[0] - (int)render_offset_prev[0] > 0 && (float)render_offset_prev[1] - (int)render_offset_prev[1] > 0) if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-      
-        if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-        if((float)render_offset[0] - (int)render_offset[0] > 0) if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-        if((float)render_offset[1] - (int)render_offset[1] > 0) if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-        if((float)render_offset[0] - (int)render_offset[0] > 0 && (float)render_offset[1] - (int)render_offset[1] > 0) if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
-      }
-    }
-  }
-
-  update_map_player(renderer, player_pos_raster, index_offset, render_offset);
-}
-
-int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int render_offset[2])
+int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int render_offset[2], bool override_color)
 {
   int t_before = SDL_GetTicks();
 
@@ -235,11 +202,12 @@ int render_map(SDL_Renderer* renderer, Map map, float index_offset[2], int rende
   {
     for(int i = 0; i < (int)visible_tiles[0]; i++)
     {
-      if(redraw_tile(renderer, map, i, j, index_offset, render_offset) == -1) return -1;
+      if(redraw_tile(renderer, map, i, j, index_offset, render_offset, override_color) == -1) return -1;
     }
   }
 
   int t_after = SDL_GetTicks();
+  return 0;
 }
 
 #endif // RENDER_MANAGER_H
