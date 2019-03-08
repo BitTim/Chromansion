@@ -35,6 +35,7 @@ public:
 SDL_Surface *texture_loader;
 Sprite *sprite_loader;
 std::vector<Sprite> texture_atlas;
+std::vector<Sprite> gfx_atlas;
 
 SDL_Texture* load_texture(SDL_Renderer* renderer, std::string path)
 {
@@ -153,6 +154,32 @@ int load_textures(SDL_Renderer* renderer)
 
   sprite_loader = new Sprite(renderer, "data/textures/red_green_blue_brick.png");
   texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/spike_white.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/spike_red.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/spike_green.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  sprite_loader = new Sprite(renderer, "data/textures/spike_blue.png");
+  texture_atlas.push_back(*sprite_loader);
+  delete sprite_loader;
+
+  SDL_FreeSurface(texture_loader);
+  return 0;
+}
+
+int load_gfx(SDL_Renderer* renderer)
+{
+  sprite_loader = new Sprite(renderer, "data/gfx/edge_blur.png");
+  gfx_atlas.push_back(*sprite_loader);
   delete sprite_loader;
 
   SDL_FreeSurface(texture_loader);

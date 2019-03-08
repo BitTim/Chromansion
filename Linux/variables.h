@@ -4,14 +4,14 @@
 #include <vector>
 #include "map_handler.h"
 
-int screen_size[2] = {960, 544};
-bool fullscreen = false;
+int screen_size[2];
+bool fullscreen;
 
 int tile_size[2] = {32, 32};
 int player_size[2] = {tile_size[0], tile_size[1] * 2};
 float visible_tiles[2] = {(float)screen_size[0] / (float)tile_size[0], (float)screen_size[1] / (float)tile_size[1]};
 
-int num_tile_textures = 9;
+int num_tile_textures = 13;
 
 bool standing = false;
 bool jumping = false;
@@ -25,7 +25,9 @@ int gravity = 2;
 int drag = 1;
 
 int player_color = 0;
-int player_state = 0;
+int player_health = 100;
+
+bool player_invincible = false;
 
 Map map;
 

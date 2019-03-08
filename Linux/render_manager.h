@@ -174,6 +174,18 @@ int redraw_tile(SDL_Renderer* renderer, Map map, int x, int y, float index_offse
 	  else if(override_color)    render_texture_simple(renderer, 24, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
   	  else clear = true;
 	  break;
+	case 9:
+      render_texture_simple(renderer, 25, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  break;
+	case 10:
+	  if(player_color == 1)		 render_texture_simple(renderer, 26, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  break;
+	case 11:
+	  if(player_color == 2)		 render_texture_simple(renderer, 27, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  break;
+	case 12:
+	  if(player_color == 3)		 render_texture_simple(renderer, 28, x * tile_size[0] - render_offset[0], y * tile_size[1] - render_offset[1], tile_size[0], tile_size[1]);
+  	  break;
   }
 
   if(clear)

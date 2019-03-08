@@ -26,7 +26,7 @@ int mouse_hover(int button_width, int offset_top, int menu_type)
 	}
 	else if(menu_type == 2)
 	{
-			 if(mx >= 25 + button_width * 0 && mx <= 25 + button_width * 1 && my 
+			 //if(mx >= 25 + button_width * 0 && mx <= 25 + button_width * 1 && my 
 	}
 }
 
@@ -55,7 +55,7 @@ int main_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
 
 	while(!menu_quit)
 	{
-		curr_hover = mouse_hover(button_width, offset_top);
+		curr_hover = mouse_hover(button_width, offset_top, 1);
 
 		if(curr_hover != prev_hover)
 		{
@@ -86,7 +86,7 @@ int main_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
 				switch(event.button.button)
 				{
 					case SDL_BUTTON_LEFT:
-						switch(mouse_hover(button_width, offset_top))
+						switch(mouse_hover(button_width, offset_top, 1))
 						{
 							case 1: //New
 								menu_quit = 1;

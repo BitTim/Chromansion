@@ -13,6 +13,9 @@
 #include "collision_handler.h"
 #include "gui_handler.h"
 #include "powerup_handler.h"
+#include "gfx_manager.h"
+#include "menu.h"
+#include "config_manager.h"
 
 #define NUM_FRAMES_FPS_UPDATE 10
 
@@ -94,8 +97,11 @@ void screen_end()
 
 int init()
 {
+  if(load_config("data/config.cfg") == -1) return -1;
+
   screen_init();
   load_textures(renderer);
+  load_gfx(renderer);
 
   font = TTF_OpenFont("data/fonts/font.ttf", 16);
 
@@ -130,6 +136,8 @@ int init()
 
   SDL_SetRenderDrawColor(renderer, 35, 35, 35, 255);
   SDL_RenderClear(renderer);
+
+  if(main_menu(renderer, font) == 1) quit = true;
 
   if(render_map(renderer, map, index_offset, render_offset, false) == -1) return -1;
 
@@ -189,10 +197,14 @@ int draw_screen()
   char tmp[20];
   sprintf(tmp, "%.2f FPS", fps);
 
-  TTF_Print(renderer, tmp, &text_size[0], &text_size[1], 0, 0, screen_size[0], font, text_color);
-
   if(active_window && window_type == 1) mouse_hover_color = GUI_ColorSelect(renderer, colors, screen_size[0] / 2 - (tile_size[0] * 16 / 2) + 5, screen_size[1] / 2 - (tile_size[1] * 2 / 2) + 5, tile_size[0], tile_size[1], 16, mouse_pos);	
 
+  render_gfx(renderer);
+  TTF_Print(renderer, tmp, &text_size[0], &text_size[1], 0, 0, screen_size[0], font, text_color);
+ 
+  sprintf(tmp, "%d HP", player_health);
+  TTF_Print(renderer, tmp, &text_size[0], &text_size[1], 0, screen_size[1] - text_size[1], screen_size[0], font, win_color); 
+ 
   SDL_RenderPresent(renderer);
   return 0;
 }
@@ -284,6 +296,12 @@ int update()
 
     if(player_speed[1] < player_max_speed[1]) player_speed[1] += gravity;
     if(player_speed[1] > 0) jumping = false;
+
+	if(player_invincible) 
+	{
+		if(inv_curr_duration < inv_max_duration) inv_curr_duration++;
+		else player_invincible = false;
+	} 
 
     collision_err = collision(player_pos, player_pos_raster, player_speed);
     if(collision_err == -1) printf("Collision Failed\n");
