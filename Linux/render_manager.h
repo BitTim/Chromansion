@@ -106,6 +106,7 @@ int render_powerups(SDL_Renderer* renderer, std::vector<pup> pup_list, float ind
 				render_texture_animated(renderer, 20, (int)(pup_x * (float)tile_size[0]), (int)((pup_y + 1) * (float)tile_size[1]), tile_size[0], tile_size[1]);
 				texture_id = 19;
 			}	
+			if(pow.type == 5) texture_id = 29;			
 
 			render_texture_animated(renderer, texture_id, (int)(pup_x * (float)tile_size[0]), (int)(pup_y * (float)tile_size[1]), tile_size[0], tile_size[1]);
 		}

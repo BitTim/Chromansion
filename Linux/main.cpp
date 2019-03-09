@@ -300,7 +300,11 @@ int update()
 	if(player_invincible) 
 	{
 		if(inv_curr_duration < inv_max_duration) inv_curr_duration++;
-		else player_invincible = false;
+		else
+		{
+			player_invincible = false;
+			inv_curr_duration = 0;
+		}	
 	} 
 
     collision_err = collision(player_pos, player_pos_raster, player_speed);
@@ -329,6 +333,7 @@ int update()
 
 	if(collected_powerup == 3) colors[3].locked = false;
 	if(collected_powerup == 4) win_condition();
+	if(collected_powerup == 5) player_health += 10;
 
     player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
     player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
