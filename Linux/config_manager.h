@@ -45,7 +45,7 @@ std::vector<std::string> interpret_conf(Config config)
 	return parsed_config;
 }
 
-int write_config(const char* path, Config config)
+/*int write_config(const char* path, Config config)
 {
 	std::ofstream config_file;
 	config_file.open(path, std::ofstream::trunc);
@@ -56,7 +56,7 @@ int write_config(const char* path, Config config)
 	}
 
 	config_file.close();
-}
+}*/
 
 int interpret_line(std::vector<std::string> parsed_line, Config& config)
 {

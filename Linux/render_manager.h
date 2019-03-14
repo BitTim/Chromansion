@@ -94,19 +94,14 @@ int render_powerups(SDL_Renderer* renderer, std::vector<pup> pup_list, float ind
 	{
 		float pup_x = (float)pow.x - index_offset[0];
 		float pup_y = (float)pow.y - index_offset[1];
-		int texture_id = 0;
+		int texture_id = 30;
 
 		if(pup_x >= 0 && pup_y >= 0 && pow.visible)
 		{
 			if(pow.type == 1) texture_id = 16; 
 			if(pow.type == 2) texture_id = 17;
 			if(pow.type == 3) texture_id = 18;
-			if(pow.type == 4) 		
-			{
-				render_texture_animated(renderer, 20, (int)(pup_x * (float)tile_size[0]), (int)((pup_y + 1) * (float)tile_size[1]), tile_size[0], tile_size[1]);
-				texture_id = 19;
-			}	
-			if(pow.type == 5) texture_id = 29;			
+			if(pow.type == 4) texture_id = 29;			
 
 			render_texture_animated(renderer, texture_id, (int)(pup_x * (float)tile_size[0]), (int)(pup_y * (float)tile_size[1]), tile_size[0], tile_size[1]);
 		}

@@ -26,8 +26,10 @@ int drag = 1;
 
 int player_color = 0;
 int player_health = 100;
+int player_max_health = 100;
 
 bool player_invincible = false;
+bool game_over = false;
 
 Map map;
 

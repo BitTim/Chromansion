@@ -209,6 +209,11 @@ int draw_screen()
   return 0;
 }
 
+int draw_gameover()
+{
+	
+}
+
 void calc_fps()
 {
   int count = 0;
@@ -229,15 +234,6 @@ void calc_fps()
 
   fps /= count;
   fps = 1000.f / fps;
-}
-
-void win_condition()
-{
-	int text_w, text_h;
-	TTF_Print(renderer, "You won!", &text_w, &text_h, screen_size[0] / 2 - text_w / 2, screen_size[1] / 2 - text_h / 2, screen_size[0], font, win_color);
-
-	usleep(3000000);	
-	quit = true;
 }
 
 int update()
@@ -310,13 +306,7 @@ int update()
     collision_err = collision(player_pos, player_pos_raster, player_speed);
     if(collision_err == -1) printf("Collision Failed\n");
 
-	if(player_color == 2)
-	{
-		for(pup &pow : map.powups)
-		{
-			if(pow.type == 4) pow.visible = true;
-		}
-	}
+	if(player_health <= 0) game_over = true;
 
 	collected_powerup = check_collect(player_pos_raster, map.powups);
 	
@@ -332,8 +322,11 @@ int update()
 	}
 
 	if(collected_powerup == 3) colors[3].locked = false;
-	if(collected_powerup == 4) win_condition();
-	if(collected_powerup == 5) player_health += 10;
+	if(collected_powerup == 4)
+	{
+		if(player_health < player_max_health) player_health += 10;
+		else for(pup &pow : map.powups) if(pow.type == 4) pow.visible = true;
+	}
 
     player_pos_raster[0] = (float)player_pos[0] / (float)tile_size[0];
     player_pos_raster[1] = (float)player_pos[1] / (float)tile_size[1];
