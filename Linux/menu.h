@@ -27,12 +27,91 @@ int mouse_hover(int button_width, int offset_top, int menu_type)
 	else if(menu_type == 2)
 	{
 			 //if(mx >= 25 + button_width * 0 && mx <= 25 + button_width * 1 && my 
+		return 0;
 	}
+	else if(menu_type == 3)
+	{
+		     if(mx >= 25 + button_width * 0 && mx <= 25 + button_width * 1 && my >= offset_top + 25 + 36 && my <= offset_top + 25 + 36 * 2) return 1;
+		else if(mx >= 25 + button_width * 1 && mx <= 25 + button_width * 2 && my >= offset_top + 25 + 36 && my <= offset_top + 25 + 36 * 2) return 2;
+		else return 0;
+	}
+	else return -1;
+}
+
+int gameover_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
+{
+	SDL_Event event;
+	
+	TTF_Font* header_font = TTF_OpenFont("data/fonts/font.ttf", 36);
+	
+	SDL_Color go_color = {229, 16, 16, 255};
+	SDL_Color menu_color = {255, 255, 255, 255};
+	SDL_Color load_color = {220, 255, 0, 255};
+	SDL_Color exit_color = {255, 30, 50, 255};
+	
+	int offset_top = screen_size[1] / 5 * 3;
+	int button_width = (screen_size[0] - 50) / 2;
+
+	int curr_hover = 0, prev_hover = -1;
+
+	while(!menu_quit)
+	{
+		curr_hover = mouse_hover(button_width, offset_top, 3);
+
+		if(curr_hover != prev_hover)
+		{
+			SDL_SetRenderDrawColor(renderer, 35, 35, 35, 255);
+			SDL_RenderClear(renderer);
+
+			int text_size[2];
+
+			TTF_Print(renderer, "Game Over", &text_size[0], &text_size[1], 20, offset_top, screen_size[0], header_font, go_color);
+			
+			TTF_Print(renderer, "Load Game", &text_size[0], &text_size[1], 25 + button_width * 0, offset_top + 25 + 36, screen_size[0], menu_font, curr_hover == 1 ? load_color : menu_color);
+			TTF_Print(renderer, "Exit", &text_size[0], &text_size[1], 25 + button_width * 1, offset_top + 25 + 36, screen_size[0], menu_font, curr_hover == 2 ? exit_color : menu_color);
+			
+			SDL_RenderPresent(renderer);
+		}
+		
+		SDL_PollEvent(&event);
+		switch(event.type)
+		{
+			case SDL_QUIT:
+				menu_quit = true;
+				quit = true;
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				switch(event.button.button)
+				{
+					case SDL_BUTTON_LEFT:
+						switch(mouse_hover(button_width, offset_top, 1))
+						{
+							case 1: //Load
+								//Load Dialogue
+								menu_quit = 1;
+								break;
+							
+							case 2: //Exit
+								menu_quit = 1;
+								quit = true;
+								break;
+						}
+						break;
+				}
+				break;
+		}
+
+		prev_hover = curr_hover;
+	}
+
+	menu_quit = false;	
+	return 0;
 }
 
 int settings_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
 {
-
+	return 0;
 }
 
 int main_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
@@ -80,6 +159,7 @@ int main_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
 		{
 			case SDL_QUIT:
 				menu_quit = true;
+				quit = true;
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -107,7 +187,7 @@ int main_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
 							
 							case 5: //Exit
 								menu_quit = true;
-								return 1;
+								quit = true;
 								break;
 						}
 						break;
@@ -118,6 +198,7 @@ int main_menu(SDL_Renderer* renderer, TTF_Font* menu_font)
 		prev_hover = curr_hover;
 	}
 
+	menu_quit = false;
 	return 0;
 }
 

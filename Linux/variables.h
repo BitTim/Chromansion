@@ -7,6 +7,8 @@
 int screen_size[2];
 bool fullscreen;
 
+bool quit = false;
+
 int tile_size[2] = {32, 32};
 int player_size[2] = {tile_size[0], tile_size[1] * 2};
 float visible_tiles[2] = {(float)screen_size[0] / (float)tile_size[0], (float)screen_size[1] / (float)tile_size[1]};

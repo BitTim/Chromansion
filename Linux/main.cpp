@@ -43,7 +43,6 @@ int frame_counter = 0;
 float fps = 0;
 int text_size[2];
 
-bool quit = false;
 bool space_pressed = false;
 bool lalt_pressed = false;
 
@@ -71,6 +70,9 @@ bool active_window = false;
 int window_type = 0;
 
 int collected_powerup = 0;
+
+bool first_gameover_frame = false;
+bool confirmed_first_bool = false;
 
 std::vector<col> colors;
 
@@ -137,7 +139,7 @@ int init()
   SDL_SetRenderDrawColor(renderer, 35, 35, 35, 255);
   SDL_RenderClear(renderer);
 
-  if(main_menu(renderer, font) == 1) quit = true;
+  main_menu(renderer, font);
 
   if(render_map(renderer, map, index_offset, render_offset, false) == -1) return -1;
 
@@ -209,11 +211,6 @@ int draw_screen()
   return 0;
 }
 
-int draw_gameover()
-{
-	
-}
-
 void calc_fps()
 {
   int count = 0;
@@ -245,6 +242,8 @@ int update()
 
     if(sprint) player_max_speed[0] = 10;
     if(!sprint) player_max_speed[0] = 5;
+
+	if(key_state[SDL_SCANCODE_K] == 1) player_health = 0;
 
     if(key_state[SDL_SCANCODE_A] == 1 && key_state[SDL_SCANCODE_D] == 0)
     {
@@ -303,6 +302,34 @@ int update()
 		}	
 	} 
 
+    if(key_state[SDL_SCANCODE_SPACE] == 1 && !space_pressed)
+    {
+       	space_pressed = true;
+       	if(standing || double_jump)
+      	{
+      		if(!standing) double_jump = false;
+       		player_speed[1] = -player_max_speed[1];
+     	}
+     	jumping = true;
+    }
+    else if(key_state[SDL_SCANCODE_SPACE] == 0) space_pressed = false;
+
+    if(key_state[SDL_SCANCODE_LSHIFT] == 1) sprint = true;
+    else sprint = false;
+
+    if(key_state[SDL_SCANCODE_LALT] == 1 && !lalt_pressed)
+    {
+       	lalt_pressed = true;
+    	printf("X: %.2f Y: %.2f   Speed X: %.2f Speed Y: %.2f\n", player_pos_raster[0], player_pos_raster[1], (float)player_speed[0] / (float)tile_size[0], (float)player_speed[1] / (float)tile_size[1]);
+    }	
+    else if(key_state[SDL_SCANCODE_LALT] == 0) lalt_pressed = false;
+
+	if(key_state[SDL_SCANCODE_C] == 1 && !active_window)
+	{
+		active_window = true;
+	 	window_type = 1;
+	}
+		
     collision_err = collision(player_pos, player_pos_raster, player_speed);
     if(collision_err == -1) printf("Collision Failed\n");
 
@@ -357,6 +384,33 @@ int update()
   return 0;
 }
 
+int draw_gameover(bool first)
+{
+	if(first) gfx_fadeout(renderer);
+	gameover_menu(renderer, font);
+	
+	SDL_RenderPresent(renderer);
+	return 0;
+}
+
+int update_gameover()
+{
+	if(frame_counter >= 10)
+	{
+		if(!confirmed_first_bool)
+		{
+			first_gameover_frame = true;
+			confirmed_first_bool = true;
+		}
+		else first_gameover_frame = false;
+	
+		frame_counter = 0;	
+
+		if(draw_gameover(first_gameover_frame) == -1) return -1;
+	}
+	return 0;
+}
+
 int main()
 {
   if(init() == -1) return -1;
@@ -393,37 +447,14 @@ int main()
 				break;
       	}
 
-      	if(key_state[SDL_SCANCODE_ESCAPE] == 1) quit = true;
+      	if(key_state[SDL_SCANCODE_ESCAPE] == 1)
+		{
+			if(!active_window) quit = true;
+			else active_window = false;
+		}
 
-      	if(key_state[SDL_SCANCODE_SPACE] == 1 && !space_pressed)
-      	{
-        	space_pressed = true;
-        	if(standing || double_jump)
-        	{
-        		if(!standing) double_jump = false;
-          		player_speed[1] = -player_max_speed[1];
-        	}
-        	jumping = true;
-      	}
-      	else if(key_state[SDL_SCANCODE_SPACE] == 0) space_pressed = false;
-
-      	if(key_state[SDL_SCANCODE_LSHIFT] == 1) sprint = true;
-      	else sprint = false;
-
-      	if(key_state[SDL_SCANCODE_LALT] == 1 && !lalt_pressed)
-      	{
-        	lalt_pressed = true;
-        	printf("X: %.2f Y: %.2f   Speed X: %.2f Speed Y: %.2f\n", player_pos_raster[0], player_pos_raster[1], (float)player_speed[0] / (float)tile_size[0], (float)player_speed[1] / (float)tile_size[1]);
-      	}	
-      	else if(key_state[SDL_SCANCODE_LALT] == 0) lalt_pressed = false;
-
-	  	if(key_state[SDL_SCANCODE_C] == 1 && !active_window)
-	  	{
-			active_window = true;
-	  		window_type = 1;
-		}		
-
-      	if(update() == -1) return -1;
+      	if(!game_over) if(update() == -1) return -1;
+		if(game_over) if(update_gameover() == -1) return -1;
 
  		last_time = current_time;
       	frame_counter++;

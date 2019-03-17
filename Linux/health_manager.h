@@ -5,7 +5,7 @@
 #include "variables.h"
 
 int amnt_dmg = 10;
-int inv_max_duration = 50;
+int inv_max_duration = 25;
 int inv_curr_duration = 0;
 
 bool dmg_flag = false;
